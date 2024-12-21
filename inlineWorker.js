@@ -96,9 +96,11 @@ ${input.assignTo} = (() => {
                 for(let i = 0; i < ids.length; i++) {
                     const id = ids[i]
                     if(id !== importCodeVirtId) continue
+                    // dubious, no? the file would've been in /assets/
+                    // The URL path is absolute anyway...
                     codeToEmbed = b.code.replace(
-                        'import.meta.url',
-                        'window.location.origin'
+                        /new URL\((.+?),import\.meta\.url\)/,
+                        '$1'
                     ).trim()
                     bundleToDelete = name
                     break

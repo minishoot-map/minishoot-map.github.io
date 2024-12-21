@@ -4,7 +4,7 @@ import * as collidersDisplay from './renderColliders.js'
 import * as circularDisplay from './renderCircularColliders.js'
 import * as markersDisplay from './renderMarkers.js'
 import * as specMarkerDisplay from './renderSpecialMarker.js'
-import * as sideMenu from './sideMenu.jsx'
+import * as sideMenu from './sideMenu'
 import { xpForCrystalSize } from '$/meta.json'
 
 function resolvablePromise() {
@@ -27,15 +27,28 @@ if(__worker) {
         console.log('received from worker', d.type)
 
         if(d.type === 'click') {
-            sideMenu.setCurrentObject({ first: d.first, nearby: d.nearby, nearbyReferenceInfos: d.nearbyReferenceInfos })
+            const obj = {
+                first: d.first,
+                nearby: d.nearby,
+                nearbyReferenceInfos: d.nearbyReferenceInfos,
+            }
+            sideMenu.setCurrentObject(obj)
+            context.currentObject = obj
+            context.requestRender(1)
             updUrl(d.first)
         }
         else if(d.type === 'getInfo') {
-            sideMenu.setCurrentObject({ first: d.object })
+            const obj = { first: d.object }
+            sideMenu.setCurrentObject(obj)
+            context.currentObject = obj
+            context.requestRender(1)
             updUrl(d.object)
         }
         else if(d.type === 'getSceneInfo') {
-            sideMenu.setCurrentObject({ scene: d.scene })
+            const obj = { scene: d.scene }
+            sideMenu.setCurrentObject(obj)
+            context.currentObject = obj
+            context.requestRender(1)
             updUrlScene(d.scene)
         }
         else if(d.type === 'colliders-done') {
@@ -391,6 +404,7 @@ const context = {
     canvasSize: [],
     filters,
     lastFilters: {},
+    currentObject: null,
     filtersUpdated() {
         try { sideMenu.filtersUpdated() }
         catch(e) { console.error(e) }

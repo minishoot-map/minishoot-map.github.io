@@ -186,7 +186,7 @@ export function renderRest(context) {
     if(rd?.restOk !== true) return
     const { gl, camera } = context
 
-    const curSelectedI = context.sideMenu?.currentObject?.first?.markerI
+    const curSelectedI = context.currentObject?.first?.markerI
     if(curSelectedI != rd.selectedI) {
         rd.selectedI = curSelectedI
         rd.currentInvalid = true
@@ -236,7 +236,7 @@ export function renderSelected(context) {
     if(rd?.selectedOk !== true) return
     const { gl, camera } = context
 
-    const first = context.sideMenu?.currentObject?.first
+    const first = context.currentObject?.first
     if(first && (first.markerType != 0 || !context.markers?.ok)) {
         rd.selected.dataView.setFloat32(0, first.pos[0], true)
         rd.selected.dataView.setFloat32(4, first.pos[1], true)

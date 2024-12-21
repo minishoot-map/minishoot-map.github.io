@@ -106,13 +106,6 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
         build: {
             outDir: '../dist',
             emptyOutDir: true,
-            rollupOptions: {
-                output: {
-                    manualChunks: {
-                        react: ['react', 'react-dom'],
-                    },
-                }
-            },
             modulePreload: { polyfill: false },
         },
         define: finalDefines,
@@ -130,11 +123,12 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
             },
         },
         assetsInclude: ['**/*.bp', '**/*.pak'],
+        worker: { format: 'es' },
         plugins: [
             react(),
             inlineWorker({
                 htmlPath: srcPath('index.html'),
-                workerPath: srcPath('worker.js'),
+                workerPath: srcPath('worker/index.js'),
                 assignTo: 'window.worker',
             }),
             injectPreloads(command),

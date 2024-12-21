@@ -1,69 +1,76 @@
 // @ts-check
-import * as Load from './load.js'
+import * as Load from '../load.js'
 import markersData from '$/markers.json'
 import markersMeta from '$/markers-meta.json'
-import { meta, getAsSchema, parsedSchema, stepsToBase, getBase } from './schema.js'
+import { meta, getAsSchema, parsedSchema, stepsToBase, getBase } from '../schema.js'
 
-import objectUrl from '$/objects.bp'
-import polygonsUrl from '$/polygons.bp'
+const onClickCompletable = {
+    haveMarkers: false,
+    haveFilters: false,
+    /** @type {object} */
+    coordinates: null,
+    update() {
+        if(!(this.haveMarkers && this.haveFilters && this.coordinates != null)) {
+            return
+        }
+        onClick(this.coordinates.x, this.coordinates.y)
+        this.coordinates = null
+    },
+}
+
+const getInfoCompletable = {
+    haveProcessedObjects: false,
+    /** @type {number | null} */
+    index: null,
+    update() {
+        if(!(this.haveProcessedObjects && this.index != null)) {
+            return
+        }
+        getInfo(this.index)
+        this.index = null
+    },
+}
+
+const filtersCompletable = {
+    haveProcessedObjects: false,
+    /** @type {object} */
+    markers: null,
+    update() {
+        if(!(this.haveProcessedObjects && this.markers != null)) {
+            return
+        }
+        calcMarkerFilters(this.markers)
+        this.markers = null
+    },
+}
+
+async function load(promise) {
+    return new Uint8Array(await (await promise).arrayBuffer())
+}
+
+const objectsP = load(globalThis.objectsP)
+const polygonsP = load(globalThis.polygonsP)
+const message = globalThis.message
+
+export function onmessage(it) {
+    if(it.type === 'click') {
+        onClickCompletable.coordinates = it
+        onClickCompletable.update()
+    }
+    else if(it.type === 'getInfo') {
+        getInfoCompletable.index = it.index
+        getInfoCompletable.update()
+    }
+    else if(it.type == 'filters') {
+        filtersCompletable.markers = it.markers
+        filtersCompletable.update()
+    }
+    else {
+        console.warn('unknown message type', it.type)
+    }
+}
 
 const ti = parsedSchema.typeSchemaI
-
-// NOTE: DO NOT send 30mb of objects w/ postMessage() :)
-
-var queue = []
-var ready
-function message(content, transfer) {
-    if(ready) postMessage(content, transfer)
-    else queue.push([content, transfer])
-}
-
-onmessage = (e) => {
-    const d = e.data
-    console.log('received from client', d.type)
-    if(d.type === 'ready') {
-        ready = true
-        queue.forEach(([c, t]) => {
-            try { postMessage(c, t) }
-            catch(e) { console.error(e) }
-        })
-        queue.length = 0
-    }
-    else if(d.type === 'click') {
-        onClick(d.x, d.y)
-    }
-    else if(d.type === 'getInfo') {
-        getInfo(d.index)
-    }
-    else if(d.type == 'filters') {
-        calcMarkerFilters(d.markers)
-    }
-}
-
-function shouldLoad(is, load, message) {
-    if(is) return load()
-
-    console.warn(message)
-    return new Promise(() => {})
-}
-
-async function load(path) {
-    const res = await fetch(path)
-    const ab = await res.arrayBuffer()
-    return new Uint8Array(ab)
-}
-
-
-const objectsP = shouldLoad(
-    __worker_objects,
-    () => load(objectUrl),
-    'skipping objects'
-)
-const polygonsP = shouldLoad(
-    __worker_colliders && __worker_objects,
-    () => load(polygonsUrl),
-    'skipping colliders'
-)
 
 var deg2rad = (Math.PI / 180)
 // Note: rotation is counter-clockwise in both Unity and css (right?)
@@ -144,8 +151,6 @@ const objectsLoadedP = objectsP.then(objectsA => {
 function createOneTex(comp) {
     return [parsedSchema.schema[comp._schema].textureI]
 }
-
-var lastMarkerFilters
 
 /** @typedef {(component: any, actualComponent: any) => [textureI: number, size?: number]} DisplayFunc */
 /** @type {Map<number, DisplayFunc>} */
@@ -262,6 +267,7 @@ const schemaReferenceFuncI = Array(meta.schemas.length)
 var allMarkersInfo
 /** @type {object[]} */
 var restMarkersInfo
+var filteredMarkersIndices
 
 /** @type {Promise<{
     colliderObjects: Array<[object: any, component: any]>,
@@ -269,6 +275,7 @@ var restMarkersInfo
 }>} */
 
 const objectsProcessedP = objectsLoadedP.then(objects => {
+    /** @type {Array<[object: any, component: any]>} */
     const colliderObjects = []
 
     /** @type {RegularDisplay[]} */
@@ -378,9 +385,10 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
 })
 
 objectsProcessedP.then(() => {
-    if(__worker_markers) {
-        if(lastMarkerFilters != null) calcMarkerFilters(lastMarkerFilters)
-    }
+    filtersCompletable.haveProcessedObjects = true
+    filtersCompletable.update()
+    getInfoCompletable.haveProcessedObjects = true
+    getInfoCompletable.update()
 })
 
 objectsProcessedP.then(({ regularDisplays }) => {
@@ -630,13 +638,9 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
     console.error('Error processing colliders', e)
 })
 
-function checkOnClick() {
-    if(lastX != null) onClick(lastX, lastY)
-}
-
-var lastX, lastY, filteredMarkersIndices
 objectsProcessedP.then(d => {
-    checkOnClick()
+    onClickCompletable.haveMarkers = true
+    onClickCompletable.update()
 })
 
 function serializeObject(obj) {
@@ -745,12 +749,6 @@ function serializeObject(obj) {
 }
 
 function onClick(x, y) {
-    lastX = x
-    lastY = y
-    if(allMarkersInfo == null || filteredMarkersIndices == null) return
-    lastX = null
-    lastY = null
-
     /** @type {Array<[distance: number, object: object | null]>} */
     const closest = Array(20)
     for(let i = 0; i < closest.length; i++) {
@@ -824,41 +822,34 @@ function onClick(x, y) {
 
 
 async function getInfo(index) {
-    await objectsProcessedP
-
-    if(index < 0) {
-        const s = scenes[-index - 1]
-        if(s) {
-            const referenceInfos = {}
-
-            const children = Array(s.roots.length)
-            for(let i = 0; i < s.roots.length; i++) {
-                const child = s.roots[i]
-                if(child) {
-                    children[i] = child._index
-                    const name = child.name
-                    referenceInfos[child._index] = [name, child.pos[0], child.pos[1]]
-                }
-                else {
-                    children[i] = null
-                }
-            }
-
-            message({ type: 'getSceneInfo', scene: { referenceInfos, children, name: s.name, index } })
-        }
-    }
-    else {
+    if(index >= 0) {
         const object = objects[index]
         if(object) message({ type: 'getInfo', object: serializeObject(object) })
+        return
+    }
+
+    const s = scenes[-index - 1]
+    if(s) {
+        const referenceInfos = {}
+
+        const children = Array(s.roots.length)
+        for(let i = 0; i < s.roots.length; i++) {
+            const child = s.roots[i]
+            if(child) {
+                children[i] = child._index
+                const name = child.name
+                referenceInfos[child._index] = [name, child.pos[0], child.pos[1]]
+            }
+            else {
+                children[i] = null
+            }
+        }
+
+        message({ type: 'getSceneInfo', scene: { referenceInfos, children, name: s.name, index } })
     }
 }
 
 function calcMarkerFilters(filters) {
-    lastMarkerFilters = filters
-    if(allMarkersInfo == null) return;
-    ; // I am neovim and I can't indent correctly (actually nvim-treesitter)
-    lastMarkerFilters = null
-
     const fs = {}
     for(let i = 0; i < filters.length; i++) {
         fs[ti[filters[i][0]]] = filters[i][1]
@@ -888,5 +879,6 @@ function calcMarkerFilters(filters) {
 
     filteredMarkersIndices = filteredIndices
     filteredMarkersIndices.includeRest = filters.includeRest
-    checkOnClick()
+    onClickCompletable.haveFilters = true
+    onClickCompletable.update()
 }

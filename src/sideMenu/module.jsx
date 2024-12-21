@@ -1,5 +1,4 @@
 import * as R from 'react'
-import { createPortal } from 'react-dom'
 import reactDom from 'react-dom/client'
 import * as Z from 'zustand'
 import { meta, parsedSchema } from '/schema.js'
@@ -12,11 +11,8 @@ const useCurrentObject = Z.create((set) => ({
     },
 }))
 
-var gotoOther = () => { console.log('state?') }
 var context
 var renderData = { currentObject: null }
-
-var sideMenuElement, tabsElement
 
 const filtersRev = Z.create(() => 0)
 export function filtersUpdated() {
@@ -26,7 +22,6 @@ export function filtersUpdated() {
 export function setup(_context) {
     context = _context
     context.sideMenu = renderData
-    gotoOther = context.viewObject
 
     const root1 = reactDom.createRoot(document.querySelector('.object-menu'))
     root1.render(<R.StrictMode><ObjectMenu/></R.StrictMode>)
@@ -36,8 +31,6 @@ export function setup(_context) {
 }
 
 export function setCurrentObject(obj) {
-    renderData.currentObject = obj
-    if(context) context.requestRender(1)
     useCurrentObject.getState().update(obj)
 }
 
@@ -398,7 +391,7 @@ function Link({ index, obj }) {
         url.searchParams.set('obji', index)
 
         function onClick(ev) {
-            gotoOther(index)
+            context.viewObject(index)
             ev.preventDefault()
         }
         return <a href={url} onClick={onClick}>{displayName}</a>

@@ -263,7 +263,7 @@ export function render(context) {
     if(rd?.ok !== true) return
     const { gl, camera } = context
 
-    const curSelectedI = context.sideMenu?.currentObject?.first?.markerI
+    const curSelectedI = context.currentObject?.first?.markerI
     if(curSelectedI != rd.selectedI) {
         rd.selectedI = curSelectedI
         rd.currentInvalid = true
