@@ -112,7 +112,8 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
                         react: ['react', 'react-dom'],
                     },
                 }
-            }
+            },
+            modulePreload: { polyfill: false },
         },
         define: finalDefines,
         resolve: {
