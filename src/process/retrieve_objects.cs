@@ -185,6 +185,8 @@ public partial class GameManager : MonoBehaviour
     static List<GameObject> objectList;
     static int texturesCount;
     static Dictionary<long, int> textureIndices;
+    static Dictionary<string, int> textIndices;
+    static int curTextIndex;
 
     static List<Vector2[][]> colliderPolygons;
 
@@ -564,6 +566,8 @@ public partial class GameManager : MonoBehaviour
         objectList = new List<GameObject>();
         texturesCount = 0;
         textureIndices = new Dictionary<long, int>();
+        textIndices = new Dictionary<string, int>();
+        curTextIndex = 1; // 0 is new string tag
 
         colliderPolygons = new List<Vector2[][]>();
 
@@ -582,13 +586,23 @@ public partial class GameManager : MonoBehaviour
         addprim<string>((w, v) => {
             if(v == null) throw new Exception("String is null (not supported). Please handle yourself");
 
-            byte[] bytes = System.Text.Encoding.UTF8.GetBytes(v);
-            for(var i = 0; i < bytes.Length; i++) if((sbyte)bytes[i] < 0) throw new Exception(v);
-            if(bytes.Length == 0) w.Write((byte)(1u << 7));
+            var index = 0;
+            if(textIndices.TryGetValue(v, out index)) {
+                w.Write(compactInt(index));
+            }
             else {
-                if(bytes.Length == 1 && bytes[0] == (1u << 7)) throw new Exception();
-                bytes[bytes.Length - 1] = (byte)(bytes[bytes.Length - 1] | (1u << 7));
-                w.Write(bytes);
+                w.Write((byte)0);
+
+                byte[] bytes = System.Text.Encoding.UTF8.GetBytes(v);
+                for(var i = 0; i < bytes.Length; i++) if((sbyte)bytes[i] < 0) throw new Exception(v);
+                if(bytes.Length == 0) w.Write((byte)(1u << 7));
+                else {
+                    if(bytes.Length == 1 && bytes[0] == (1u << 7)) throw new Exception();
+                    bytes[bytes.Length - 1] = (byte)(bytes[bytes.Length - 1] | (1u << 7));
+                    w.Write(bytes);
+                }
+
+                textIndices.Add(v, curTextIndex++);
             }
         });
         addprim<Reference>((w, v) => w.Write(compactInt(v.reference)));

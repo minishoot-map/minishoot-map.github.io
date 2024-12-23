@@ -1,4 +1,5 @@
 var primIParsers, index, array, schemas
+var stringMap
 
 function parseCompressedInt() {
     var res = 0
@@ -32,13 +33,21 @@ function parseVector2() {
 }
 
 function parseString() {
-    var res = ''
-    if(peek() == 0b1000_0000) return res
-    do {
-        var cur = pop()
-        res += String.fromCharCode(cur & 0b0111_1111)
-    } while((cur & 0b1000_0000) == 0)
-    return res
+    if(peek() !== 0) {
+        const index = parseCompressedInt()
+        return stringMap[index]
+    }
+    else {
+        skip()
+        var res = ''
+        if(peek() == 0b1000_0000) return res
+        do {
+            var cur = pop()
+            res += String.fromCharCode(cur & 0b0111_1111)
+        } while((cur & 0b1000_0000) == 0)
+        stringMap.push(res)
+        return res
+    }
 }
 
 function parseAny() {
@@ -154,6 +163,7 @@ export function parse(parsedSchema, objectsUint8Array) {
     array = objectsUint8Array
     primIParsers = Array(10)
     schemas = parsedSchema.schema
+    stringMap = []
 
     for(const key in primParsers) {
         primIParsers[parsedSchema.typeSchemaI[key]] = primParsers[key]
