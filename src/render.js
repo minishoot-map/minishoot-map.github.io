@@ -5,7 +5,24 @@ import * as circularDisplay from './renderCircularColliders.js'
 import * as markersDisplay from './renderMarkers.js'
 import * as specMarkerDisplay from './renderSpecialMarker.js'
 import * as sideMenu from './sideMenu'
-import { xpForCrystalSize } from '$/meta.json'
+
+// rollup doesn't duplicate modules, so this imports everything...
+// import { xpForCrystalSize } from '$/meta.json'
+const xpForCrystalSize = [5, 10, 20, 50]
+if(import.meta.env.DEV) {
+    const { xpForCrystalSize: expected } = await import('$/meta.json')
+    let match = false
+    if(xpForCrystalSize.length === expected.length) {
+        let i = 0;
+        for(; i < expected.length; i++) {
+            if(xpForCrystalSize[i] !== expected[i]) break;
+        }
+        match = i === expected.length
+    }
+    if(!match) {
+        throw new Error("xpForCrystalSize doesn't match")
+    }
+}
 
 function resolvablePromise() {
     var resolve

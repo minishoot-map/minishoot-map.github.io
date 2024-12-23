@@ -1,12 +1,12 @@
 const moduleP = import('./module.jsx')
-var module
+var menu
 
 const initialSetupData = { context: {}, currentObject: {} }
 var beforeSetupData = { ...initialSetupData }
 
 export function filtersUpdated() {
     if(beforeSetupData) {}
-    else { module.filtersUpdated() }
+    else { menu.filtersUpdated() }
 }
 
 export function setup(context) {
@@ -14,7 +14,7 @@ export function setup(context) {
         beforeSetupData.context = context
     }
     else {
-        module.setup(context)
+        menu.setup(context)
     }
 }
 
@@ -23,17 +23,17 @@ export function setCurrentObject(obj) {
         beforeSetupData.currentObject = obj
     }
     else {
-        module.setCurrentObject(obj)
+        menu.setCurrentObject(obj)
     }
 }
 
 moduleP.then(_module => {
-    module = _module
+    menu = _module
     if(beforeSetupData.context !== initialSetupData.context) {
-        module.setup(beforeSetupData.context)
+        menu.setup(beforeSetupData.context)
     }
     if(beforeSetupData.currentObject !== initialSetupData.currentObject) {
-        module.setCurrentObject(beforeSetupData.currentObject)
+        menu.setCurrentObject(beforeSetupData.currentObject)
     }
     beforeSetupData = null
 })
