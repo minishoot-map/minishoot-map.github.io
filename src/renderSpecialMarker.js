@@ -180,41 +180,6 @@ export function setup(context, markersP) {
     renderData.selectedI = null
 }
 
-export function renderRest(context) {
-    const rd = context.specialMarker
-    if(rd?.restOk !== true) return
-    const { gl, camera } = context
-
-    const curSelectedI = context.currentObject?.first?.markerI
-    if(curSelectedI != rd.selectedI) {
-        rd.selectedI = curSelectedI
-        rd.currentInvalid = true
-    }
-
-    recalcCurrentMarkers(context)
-    if(rd.currentInvalid) return
-
-    gl.useProgram(rd.prog)
-
-    gl.bindVertexArray(rd.rest.vao)
-    gl.uniform1i(rd.u.drawType, 3)
-    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rd.rest.count)
-    gl.bindVertexArray(null)
-}
-
-export function renderVisible(context) {
-    const rd = context.specialMarker
-    if(rd?.visibleOk !== true) return
-    const { gl, camera } = context
-
-    gl.useProgram(rd.prog)
-
-    gl.bindVertexArray(rd.visible.vao)
-    gl.uniform1i(rd.u.drawType, 0)
-    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rd.visible.count)
-    gl.bindVertexArray(null)
-}
-
 export function setFiltered(context, { markersIndices }) {
     const renderData = context?.specialMarker
     if(!renderData) return console.error('renderData where?')
@@ -227,27 +192,80 @@ export function setFiltered(context, { markersIndices }) {
     recalcCurrentMarkers(context)
 }
 
+function shouldRenderRest(context) {
+    if(!__render_markers) return
+    const rd = context.specialMarker
+    if(rd?.restOk !== true || !context.filters[1][2]) return
+
+    const curSelectedI = context.currentObject?.first?.markerI
+    if(curSelectedI != rd.selectedI) {
+        rd.selectedI = curSelectedI
+        rd.currentInvalid = true
+    }
+
+    recalcCurrentMarkers(context)
+    if(rd.currentInvalid) return
+
+    return true
+}
+function shouldRenderVisible(context) {
+    if(!__render_markers) return
+    const rd = context.specialMarker
+    return rd?.visibleOk === true
+}
+
+function shouldRenderSelected(context) {
+    if(!__render_markers) return
+    const rd = context.specialMarker
+    if(rd?.selectedOk !== true) return false
+    const first = context.currentObject?.first
+    return first && (first.markerType != 0 || !context.markers?.ok)
+}
+
+export function renderRest(context) {
+    if(!shouldRenderRest(context)) return
+    const rd = context.specialMarker
+    const gl = context.gl
+
+    gl.useProgram(rd.prog)
+
+    gl.bindVertexArray(rd.rest.vao)
+    gl.uniform1i(rd.u.drawType, 3)
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rd.rest.count)
+    gl.bindVertexArray(null)
+}
+
+export function renderVisible(context) {
+    if(!shouldRenderVisible(context)) return
+    const rd = context.specialMarker
+    const gl = context.gl
+
+    gl.useProgram(rd.prog)
+
+    gl.bindVertexArray(rd.visible.vao)
+    gl.uniform1i(rd.u.drawType, 0)
+    gl.drawArraysInstanced(gl.TRIANGLE_STRIP, 0, 4, rd.visible.count)
+    gl.bindVertexArray(null)
+}
 
 export function renderSelected(context) {
+    if(!shouldRenderSelected(context)) return
     const rd = context.specialMarker
-    if(rd?.selectedOk !== true) return
-    const { gl, camera } = context
+    const gl = context.gl
 
     const first = context.currentObject?.first
-    if(first && (first.markerType != 0 || !context.markers?.ok)) {
-        rd.selected.dataView.setFloat32(0, first.pos[0], true)
-        rd.selected.dataView.setFloat32(4, first.pos[1], true)
-        gl.bindBuffer(gl.ARRAY_BUFFER, rd.selected.dataB)
-        gl.bufferSubData(gl.ARRAY_BUFFER, 0, rd.selected.data)
+    rd.selected.dataView.setFloat32(0, first.pos[0], true)
+    rd.selected.dataView.setFloat32(4, first.pos[1], true)
+    gl.bindBuffer(gl.ARRAY_BUFFER, rd.selected.dataB)
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, rd.selected.data)
 
-        gl.useProgram(rd.prog)
+    gl.useProgram(rd.prog)
 
-        gl.bindVertexArray(rd.selected.vao)
-        gl.uniform1i(rd.u.drawType, 1)
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-        gl.uniform1i(rd.u.drawType, 2)
-        gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
-    }
+    gl.bindVertexArray(rd.selected.vao)
+    gl.uniform1i(rd.u.drawType, 1)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
+    gl.uniform1i(rd.u.drawType, 2)
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4)
 }
 
 const markerByteC = 8
@@ -280,4 +298,21 @@ function recalcCurrentMarkers(context) {
     currentO.count = resI
 
     renderData.currentInvalid = false
+}
+
+export function getMarkerCount(context) {
+    const rd = context?.specialMarker
+
+    let count = 0
+    if(shouldRenderRest(context)) {
+        count += rd.rest.count
+    }
+    if(shouldRenderVisible(context)) {
+        count += rd.visible.count
+    }
+    if(shouldRenderSelected(context)) {
+        count++
+    }
+
+    return count
 }

@@ -257,10 +257,10 @@ export function setFiltered(context, { markersIndices }) {
     checkOk(context)
 }
 
-export function render(context) {
+function shouldRender(context) {
     const rd = context.markers
     if(rd?.ok !== true) return
-    const { gl, camera } = context
+    if(!__render_markers) return
 
     const curSelectedI = context.currentObject?.first?.markerI
     if(curSelectedI != rd.selectedI) {
@@ -270,6 +270,14 @@ export function render(context) {
 
     recalcCurrentMarkers(context)
     if(rd.currentInvalid) return
+
+    return true
+}
+
+export function render(context) {
+    if(!shouldRender(context)) return
+    const rd = context.markers
+    const gl = context.gl
 
     gl.useProgram(rd.prog)
 
@@ -291,4 +299,14 @@ export function render(context) {
 
         gl.uniform1i(rd.u.drawType, 0)
     }
+}
+
+export function getMarkerCount(context) {
+    let count = 0
+    if(shouldRender(context)) {
+        const rd = context.markers
+        count += rd.currentO.count
+        count += rd.selectedO.count
+    }
+    return count
 }

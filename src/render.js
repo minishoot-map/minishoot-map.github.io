@@ -134,10 +134,20 @@ function render(context) {
     b[2] = scale * aspect
     b[3] = scale
 
+    let count = 0
+    count += specMarkerDisplay.getMarkerCount(context)
+    count += markersDisplay.getMarkerCount(context)
+
+    const minC = 10, maxC = 300
+    const countFac = Math.min(Math.max(minC, count), maxC) / (maxC - minC)
+    const from = 5, to = 1
+    let sizeFac = from + (countFac * countFac) * (to - from)
+    if(!(isFinite(sizeFac) && sizeFac >= 1)) sizeFac = 1
+
     // 0.5 rem at scale 1 (because space is -1 to 1 and not 0 to 1)
     const rem05 = context.sizes.fontSize / context.sizes.heightCssPx
     // radius
-    b[4] = Math.min(context.camera.scale, 200) * rem05 * 1.3
+    b[4] = Math.min(context.camera.scale, 200 * sizeFac) * rem05 * 1.3
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, context.cameraUbo)
     gl.bufferSubData(gl.UNIFORM_BUFFER, 0, b)
@@ -145,9 +155,9 @@ function render(context) {
     backgroundsDisplay.render(context)
     if(__render_colliders) collidersDisplay.render(context)
     if(__render_circular) circularDisplay.render(context)
-    if(context.filters[1][2]) specMarkerDisplay.renderRest(context)
+    specMarkerDisplay.renderRest(context)
     specMarkerDisplay.renderVisible(context)
-    if(__render_markers) markersDisplay.render(context)
+    markersDisplay.render(context)
     specMarkerDisplay.renderSelected(context)
 }
 
