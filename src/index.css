@@ -245,6 +245,11 @@ body {
     justify-content: stretch;
 }
 
+.filter-collapse {
+    margin-bottom: 0.3rem;
+    color: #303030;
+}
+
 .filter-list {
     display: flex;
     flex-direction: column;

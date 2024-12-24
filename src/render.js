@@ -189,12 +189,26 @@ const filters = [
     [
         '$Object', 'Show markers', true, 'filters',
         [
+            ['Npc', 'Show NPCs', true, 'filters', []],
+            ['NpcTiny', 'Show race spirits', true, 'filters', []],
+            ['Pickup', 'Show pickups', true, 'filters', [
+                ['CrystalKey', 'Show regular keys', true, 'filters', []],
+                ['BossKey', 'Show boss keys', true, 'filters', []],
+                ['CrystalBoss', 'Show boss drop keys', true, 'filters', []],
+                ['KeyUnique', 'Show unique keys', true, 'filters', []],
+                ['ModulePickup', 'Show module pickups', true, 'filters', []],
+                ['SkillPickup', 'Show skill pickups', true, 'filters', []],
+                ['StatsPickup', 'Show stats pickups', true, 'filters', []],
+                ['ScarabPickup', 'Show scarabs', true, 'filters', []],
+                ['LorePickup', 'Show lore tablets', true, 'filters', []],
+                ['MapPickup', 'Show map pieces', true, 'filters', []],
+            ], true],
             [
                 'Enemy', 'Show enemies', true, 'filters',
                 [
                     ['size', 'Filter by size', false, 'number', 3],
                     ['tier', 'Filter by tier', false, 'number', 1],
-                ],
+                ], true
             ],
             [
                 'Jar', 'Show jars', true, 'filters',
@@ -212,7 +226,7 @@ const filters = [
                             [6, '65 big crystals [6]', true],
                         ],
                     ]
-                ],
+                ], true
             ],
             [
                 'CrystalDestroyable', 'Show crystals', true, 'filters',
@@ -228,27 +242,13 @@ const filters = [
                             return result
                         })(),
                     ],
-                ],
+                ], true
             ],
-            ['Pickup', 'Show pickups', true, 'filters', [
-                ['CrystalKey', 'Show regular keys', true, 'filters', []],
-                ['BossKey', 'Show boss keys', true, 'filters', []],
-                ['CrystalBoss', 'Show boss drop keys', true, 'filters', []],
-                ['KeyUnique', 'Show unique keys', true, 'filters', []],
-                ['ModulePickup', 'Show module pickups', true, 'filters', []],
-                ['SkillPickup', 'Show skill pickups', true, 'filters', []],
-                ['StatsPickup', 'Show stats pickups', true, 'filters', []],
-                ['ScarabPickup', 'Show scarabs', true, 'filters', []],
-                ['LorePickup', 'Show lore tablets', true, 'filters', []],
-                ['MapPickup', 'Show map pieces', true, 'filters', []],
-            ]],
             ['Unlocker', 'Show unlockers', true, 'filters', []],
-            ['UnlockerTrigger', 'Show unlockr triggers', true, 'filters', []],
-            ['Torch', 'Show torches', false, 'filters', []],
+            ['UnlockerTrigger', 'Show unlocker triggers', true, 'filters', []],
             ['Transition', 'Show transitions', true, 'filters', []],
             ['Tunnel', 'Show tunnels', true, 'filters', []],
-            ['Npc', 'Show NPCs', true, 'filters', []],
-            ['NpcTiny', 'Show Race Spirits', true, 'filters', []],
+            ['Torch', 'Show torches', false, 'filters', []],
         ],
     ],
     [
@@ -293,7 +293,7 @@ const filters = [
                     [29, '29', false],
                     // [30, '30', true],
                     [31, '31', false],
-                ],
+                ], true
             ]
         ],
     ],

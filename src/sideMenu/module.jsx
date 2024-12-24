@@ -35,7 +35,7 @@ export function setCurrentObject(obj) {
 }
 
 function Filter({ filter }) {
-    const [name, displayName, enabled, type, param] = filter
+    const [name, displayName, enabled, type, param, collapse] = filter
     var inner, t = 'inline'
     if(type === 'filters') {
         t = 'newline'
@@ -90,6 +90,17 @@ function Filter({ filter }) {
     const filterChanged = (e) => {
         filter[2] = e.target.checked
         context.filtersUpdated()
+    }
+
+    if(collapse) {
+        return <div key={name} className={'filter ' + t}>
+            <label><input type='checkbox' checked={enabled}
+                onChange={filterChanged}/>{displayName}</label>
+            <details class="filter-collapse">
+                <summary>more</summary>
+                {inner}
+            </details>
+        </div>
     }
 
     return <div key={name} className={'filter ' + t}>
