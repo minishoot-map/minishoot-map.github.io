@@ -96,7 +96,7 @@ function Filter({ filter }) {
         return <div key={name} className={'filter ' + t}>
             <label><input type='checkbox' checked={enabled}
                 onChange={filterChanged}/>{displayName}</label>
-            <details class="filter-collapse">
+            <details className="filter-collapse">
                 <summary>more</summary>
                 {inner}
             </details>

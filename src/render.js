@@ -187,31 +187,31 @@ function requestRender(priority/* 0 - immediate, 1 - animation, 2 - idle */, opt
 
 const filters = [
     [
-        '$Object', 'Show markers', true, 'filters',
+        '$Object', 'Markers', true, 'filters',
         [
-            ['Npc', 'Show NPCs', true, 'filters', []],
-            ['NpcTiny', 'Show race spirits', true, 'filters', []],
-            ['Pickup', 'Show pickups', true, 'filters', [
-                ['CrystalKey', 'Show regular keys', true, 'filters', []],
-                ['BossKey', 'Show boss keys', true, 'filters', []],
-                ['CrystalBoss', 'Show boss drop keys', true, 'filters', []],
-                ['KeyUnique', 'Show unique keys', true, 'filters', []],
-                ['ModulePickup', 'Show module pickups', true, 'filters', []],
-                ['SkillPickup', 'Show skill pickups', true, 'filters', []],
-                ['StatsPickup', 'Show stats pickups', true, 'filters', []],
-                ['ScarabPickup', 'Show scarabs', true, 'filters', []],
-                ['LorePickup', 'Show lore tablets', true, 'filters', []],
-                ['MapPickup', 'Show map pieces', true, 'filters', []],
+            ['Npc', 'NPCs', true, 'filters', []],
+            ['NpcTiny', 'Race spirits', true, 'filters', []],
+            ['Pickup', 'Pickups', true, 'filters', [
+                ['CrystalKey', 'Regular keys', true, 'filters', []],
+                ['BossKey', 'Boss keys', true, 'filters', []],
+                ['CrystalBoss', 'Boss drop keys', true, 'filters', []],
+                ['KeyUnique', 'Unique keys', true, 'filters', []],
+                ['ModulePickup', 'Module pickups', true, 'filters', []],
+                ['SkillPickup', 'Skill pickups', true, 'filters', []],
+                ['StatsPickup', 'Stats pickups', true, 'filters', []],
+                ['ScarabPickup', 'Scarabs', true, 'filters', []],
+                ['LorePickup', 'Lore tablets', true, 'filters', []],
+                ['MapPickup', 'Map pieces', true, 'filters', []],
             ], true],
             [
-                'Enemy', 'Show enemies', true, 'filters',
+                'Enemy', 'Enemies', true, 'filters',
                 [
                     ['size', 'Filter by size', false, 'number', 3],
                     ['tier', 'Filter by tier', false, 'number', 1],
                 ], true
             ],
             [
-                'Jar', 'Show jars', true, 'filters',
+                'Jar', 'Jars', true, 'filters',
                 [
                     ['size', 'Filter by size', false, 'number', 0],
                     [
@@ -229,7 +229,7 @@ const filters = [
                 ], true
             ],
             [
-                'CrystalDestroyable', 'Show crystals', true, 'filters',
+                'CrystalDestroyable', 'Crystals', true, 'filters',
                 [
                     ['dropXp', 'Filter by xp drop', true, 'boolean', [false, true]],
                     [
@@ -244,18 +244,18 @@ const filters = [
                     ],
                 ], true
             ],
-            ['Unlocker', 'Show unlockers', true, 'filters', []],
-            ['UnlockerTrigger', 'Show unlocker triggers', true, 'filters', []],
-            ['Transition', 'Show transitions', true, 'filters', []],
-            ['Tunnel', 'Show tunnels', true, 'filters', []],
-            ['Torch', 'Show torches', false, 'filters', []],
+            ['Unlocker', 'Unlockers', true, 'filters', []],
+            ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
+            ['Transition', 'Transitions', true, 'filters', []],
+            ['Tunnel', 'Tunnels', true, 'filters', []],
+            ['Torch', 'Torches', false, 'filters', []],
         ],
     ],
     [
-        '$Rest', 'Show all other objects (slow!)', false, 'filters', [],
+        '$Rest', 'All other objects (slow!)', false, 'filters', [],
     ],
     [
-        '$Collider', 'Show colliders', false, 'filters',
+        '$Collider', 'Colliders', false, 'filters',
         [
             [
                 'layer', 'Filter by layer', true, 'enum',
@@ -298,7 +298,7 @@ const filters = [
         ],
     ],
     [
-        '$Background', 'Show backgrounds', true, 'filters',
+        '$Background', 'Backgrounds', true, 'filters',
         []
     ]
 ]
