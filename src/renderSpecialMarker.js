@@ -6,9 +6,9 @@ precision highp float;
 layout(std140) uniform Camera {
     vec2 add;
     vec2 multiply;
+    float markerRadius;
 } cam;
 
-uniform float markerSize;
 uniform int drawType;
 
 in vec2 coord;
@@ -19,7 +19,7 @@ flat out int type;
 const vec2 coords[4] = vec2[4](vec2(-1.0, -1.0), vec2(1.0, -1.0), vec2(-1.0, 1.0), vec2(1.0, 1.0));
 
 void main(void) {
-    vec2 offset = coords[gl_VertexID] * markerSize;
+    vec2 offset = coords[gl_VertexID] * cam.markerRadius;
     if(drawType == 1) offset *= 1.4;
 
     vec2 pos = (coord + offset) * cam.multiply + cam.add;
@@ -95,9 +95,8 @@ export function setup(context, markersP) {
 
     gl.uniformBlockBinding(prog, gl.getUniformBlockIndex(prog, "Camera"), 0)
 
-    const markerSize = gl.getUniformLocation(prog, 'markerSize')
     const drawType = gl.getUniformLocation(prog, 'drawType')
-    renderData.u = { markerSize, drawType }
+    renderData.u = { drawType }
 
     const coordIn = gl.getAttribLocation(prog, 'coord')
 
@@ -196,7 +195,6 @@ export function renderRest(context) {
     if(rd.currentInvalid) return
 
     gl.useProgram(rd.prog)
-    gl.uniform1f(rd.u.markerSize, Math.min(camera.scale, 200) * 0.03)
 
     gl.bindVertexArray(rd.rest.vao)
     gl.uniform1i(rd.u.drawType, 3)
@@ -210,7 +208,6 @@ export function renderVisible(context) {
     const { gl, camera } = context
 
     gl.useProgram(rd.prog)
-    gl.uniform1f(rd.u.markerSize, Math.min(camera.scale, 200) * 0.03)
 
     gl.bindVertexArray(rd.visible.vao)
     gl.uniform1i(rd.u.drawType, 0)
@@ -244,7 +241,6 @@ export function renderSelected(context) {
         gl.bufferSubData(gl.ARRAY_BUFFER, 0, rd.selected.data)
 
         gl.useProgram(rd.prog)
-        gl.uniform1f(rd.u.markerSize, Math.min(camera.scale, 200) * 0.03)
 
         gl.bindVertexArray(rd.selected.vao)
         gl.uniform1i(rd.u.drawType, 1)

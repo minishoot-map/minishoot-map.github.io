@@ -133,6 +133,12 @@ function render(context) {
     b[1] = -context.camera.posY * scale
     b[2] = scale * aspect
     b[3] = scale
+
+    // 0.5 rem at scale 1 (because space is -1 to 1 and not 0 to 1)
+    const rem05 = context.sizes.fontSize / context.sizes.heightCssPx
+    // radius
+    b[4] = Math.min(context.camera.scale, 200) * rem05 * 1.3
+
     gl.bindBuffer(gl.UNIFORM_BUFFER, context.cameraUbo)
     gl.bufferSubData(gl.UNIFORM_BUFFER, 0, b)
 
@@ -422,6 +428,7 @@ const context = {
     filters,
     lastFilters: {},
     currentObject: null,
+    sizes: { fontSize: 16, heightCssPx: 1000 },
     filtersUpdated() {
         try { sideMenu.filtersUpdated() }
         catch(e) { console.error(e) }
@@ -458,22 +465,49 @@ catch(e) { console.error(e) }
 try { circularDisplay.setup(gl, context, collidersP2.promise) }
 catch(e) { console.error(e) }
 
+function updFontSize() {
+    const newSize = parseFloat(getComputedStyle(document.documentElement).fontSize)
+    const old = context.sizes.fontSize
+    if(newSize !== old) {
+        context.sizes.fontSize = newSize
+        context.requestRender(1)
+    }
+}
+
+// javascript can't notify when rem changes 🤡
+try {
+    const remPls = document.createElement('div')
+    remPls.setAttribute('style', 'position:absolute;width:1rem')
+    document.body.append(remPls)
+    const observer = new ResizeObserver(() => {
+        updFontSize()
+    });
+    observer.observe(remPls)
+}
+catch(err) {
+    try { updFontSize() }
+    catch(err) { console.error(err) }
+    console.error(err)
+}
+
 
 /* prep Camera UBO */ {
     /*
 layout(std140) uniform Camera {
     vec2 add;
     vec2 multiply;
+    float markerRadius;
 } cam;
     */
 
+    // rounded to 4 floats!
     const ubo = gl.createBuffer()
     gl.bindBuffer(gl.UNIFORM_BUFFER, ubo)
-    gl.bufferData(gl.UNIFORM_BUFFER, 16, gl.STATIC_DRAW)
+    gl.bufferData(gl.UNIFORM_BUFFER, 32, gl.STATIC_DRAW)
     gl.bindBufferBase(gl.UNIFORM_BUFFER, 0, ubo)
 
     context.cameraUbo = ubo
-    context.cameraBuf = new Float32Array(4)
+    context.cameraBuf = new Float32Array(8)
 }
 
 try { sendFiltersUpdate(context) }

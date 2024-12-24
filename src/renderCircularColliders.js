@@ -7,6 +7,7 @@ precision highp float;
 layout(std140) uniform Camera {
     vec2 add;
     vec2 multiply;
+    float markerRadius;
 } cam;
 
 in vec3 transform1;

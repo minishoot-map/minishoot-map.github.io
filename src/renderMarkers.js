@@ -9,9 +9,9 @@ precision highp float;
 layout(std140) uniform Camera {
     vec2 add;
     vec2 multiply;
+    float markerRadius;
 } cam;
 
-uniform float markerSize;
 uniform int drawType;
 
 struct MarkerData {
@@ -39,7 +39,7 @@ void main(void) {
     uint xy = md.xy;
     uint wh = md.wh;
 
-    vec2 offset = coords[gl_VertexID] * markerSize * (size + float(drawType & 1) * 0.4);
+    vec2 offset = coords[gl_VertexID] * cam.markerRadius * (size + float(drawType & 1) * 0.4);
     if(texAspect < 0.0) offset.y *= -texAspect;
     else offset.x *= texAspect;
 
@@ -160,11 +160,10 @@ export function setup(gl, context, markersDataP) {
     })
 
     const drawType = gl.getUniformLocation(prog, 'drawType')
-    const markerSize = gl.getUniformLocation(prog, 'markerSize')
     const tex = gl.getUniformLocation(prog, 'tex')
     gl.uniform1i(tex, 1)
 
-    renderData.u = { markerSize, drawType }
+    renderData.u = { drawType }
     renderData.prog = prog
 
     const coordIn = gl.getAttribLocation(prog, 'coord')
@@ -273,8 +272,6 @@ export function render(context) {
     if(rd.currentInvalid) return
 
     gl.useProgram(rd.prog)
-
-    gl.uniform1f(rd.u.markerSize, Math.min(camera.scale, 200) * 0.03)
 
     const currentO = rd.currentO
     if(currentO.count !== 0) {
