@@ -58,18 +58,20 @@ function triangulate(i) {
 }
 
 function compactInt(it) {
-    const tmpBuffer = new ArrayBuffer(5)
-    const tmpView = new DataView(tmpBuffer)
     if(it < 0) throw "Unreachable"
-    var i = 0
-    do {
-        var div = it >> 7;
-        var rem = it & ((1 << 7) - 1)
-        tmpView.setUint8(i, rem | (div === 0 ? 1 << 7 : 0))
-        it = div
-        i++
-    } while(it != 0);
-    return new Uint8Array(tmpBuffer, 0, i)
+    const bytes = []
+    while(true) {
+        var div = it >> 7
+        if(div == 0) {
+            bytes.push(it)
+            break
+        }
+        else {
+            bytes.push((it | (1 << 7)) & 0xff)
+            it = div - 1
+        }
+    }
+    return new Uint8Array(bytes)
 }
 
 function isPZero(it) {

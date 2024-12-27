@@ -58,12 +58,17 @@ const filesOrder = (() => {
 const header = []
 function writeUint(v) {
     var it = v
-    do {
-        var div = it >> 7;
-        var rem = it & ((1 << 7) - 1)
-        header.push(rem | (div == 0 ? 1 << 7 : 0))
-        it = div;
-    } while(it != 0)
+    while(true) {
+        var div = it >> 7
+        if(div == 0) {
+            header.push(it)
+            break
+        }
+        else {
+            header.push((it | (1 << 7)) & 0xff)
+            it = div - 1
+        }
+    }
 }
 
 writeUint(len)

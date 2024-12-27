@@ -218,9 +218,9 @@ async function downloadBackgrounds(context) {
         var i = 0
         do {
             var cur = header[index++]
-            res = res | ((cur & 0b0111_1111) << (i * 7))
+            res = res + (cur << (i*7))
             i++
-        } while((cur & 0b1000_0000) == 0)
+        } while(cur & 0b1000_0000)
         return res
     }
 

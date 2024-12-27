@@ -6,9 +6,9 @@ function parseCompressedInt() {
     var i = 0
     do {
         var cur = pop()
-        res = res | ((cur & 0b0111_1111) << (i * 7))
+        res = res + (cur << (i*7))
         i++
-    } while((cur & 0b1000_0000) == 0)
+    } while(cur & 0b1000_0000)
     return res
 }
 
@@ -34,7 +34,7 @@ function parseVector2() {
 
 function parseString() {
     if(peek() !== 0) {
-        const index = parseCompressedInt()
+        const index = parseCompressedInt() - 1
         return stringMap[index]
     }
     else {

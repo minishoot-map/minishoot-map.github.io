@@ -336,12 +336,17 @@ public partial class GameManager : MonoBehaviour
         var bytes = new List<byte>();
         // I hope it won't crash w/ overflow for negatives ...
         uint it = iit < 0 ? (uint)int.MaxValue + (uint)-iit : (uint)iit;
-        do {
+        while(true) {
             var div = it >> 7;
-            var rem = it & ((1u << 7) - 1);
-            bytes.Add((byte)(rem | (div == 0 ? 1u << 7 : 0u)));
-            it = div;
-        } while(it != 0);
+            if(div == 0) {
+                bytes.Add((byte)it);
+                break;
+            }
+            else {
+                bytes.Add((byte)(it | (1u << 7)));
+                it = div - 1;
+            }
+        };
         return bytes.ToArray();
     }
 
@@ -594,7 +599,7 @@ public partial class GameManager : MonoBehaviour
                 w.Write((byte)0);
 
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(v);
-                for(var i = 0; i < bytes.Length; i++) if((sbyte)bytes[i] < 0) throw new Exception(v);
+                for(var i = 0; i < bytes.Length; i++) if((sbyte)bytes[i] <= 0) throw new Exception(v);
                 if(bytes.Length == 0) w.Write((byte)(1u << 7));
                 else {
                     if(bytes.Length == 1 && bytes[0] == (1u << 7)) throw new Exception();
