@@ -39,7 +39,7 @@ moduleP.then(_module => {
 })
 moduleP.catch(err => {
     console.error(err)
-    setMsg('<span style="color: red">Loading error</span>')
+    setMsg('<span style="color: red">' + $t.loading_error + '</span>')
 })
 
 function setMsg(msg) {
@@ -53,4 +53,4 @@ function setMsg(msg) {
     catch(err) { console.warn(err) }
 }
 
-setMsg('Loading...')
+setMsg($t.loading)

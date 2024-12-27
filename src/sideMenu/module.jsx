@@ -1,3 +1,4 @@
+// @ts-check
 import * as R from 'react'
 import reactDom from 'react-dom/client'
 import * as Z from 'zustand'
@@ -66,8 +67,8 @@ function Filter({ filter }) {
             context.filtersUpdated()
         }
         inner = <div className='filter-list'>
-            <label><input type='checkbox' checked={param[0]} onChange={changed(0)}/>no</label>
-            <label><input type='checkbox' checked={param[1]} onChange={changed(1)}/>yes</label>
+            <label><input type='checkbox' checked={param[0]} onChange={changed(0)}/>$t.no</label>
+            <label><input type='checkbox' checked={param[1]} onChange={changed(1)}/>$t.yes</label>
         </div>
     }
     else if(type === 'enum') {
@@ -97,7 +98,7 @@ function Filter({ filter }) {
             <label><input type='checkbox' checked={enabled}
                 onChange={filterChanged}/>{displayName}</label>
             <details className="filter-collapse">
-                <summary>more</summary>
+                <summary>{$t.more}</summary>
                 {inner}
             </details>
         </div>
@@ -150,11 +151,11 @@ function Scene({ scene }) {
 
     return <>
         <Props>
-            <Prop>Name:{scene.name}</Prop>
+            <Prop>{$t.name + ':'}{scene.name}</Prop>
         </Props>
         <div className="space"></div>
         <details className="component" open={true}>
-            <summary>Children</summary>
+            <summary>{$t.children}</summary>
             <Props>{children}</Props>
         </details>
     </>
@@ -164,9 +165,7 @@ function Object({ first }) {
     const [status, setStatus] = R.useState(null)
 
     if(first == null) {
-        return <div>
-            No object selected
-        </div>
+        return <div>{$t.no_selected}</div>
     }
 
     const components = []
@@ -202,18 +201,18 @@ function Object({ first }) {
     return <>
         <div className='object-buttons'>
             <span>
-                <button onClick={focus}>Focus</button>
+                <button onClick={focus}>{$t.focus}</button>
                 <span className="overlay"/>
             </span>
             <span>
-                <button onClick={copyUrl}>Copy URL</button>
+                <button onClick={copyUrl}>{$t.copyurl}</button>
                 <span style={{ background: color }} className="overlay"/>
             </span>
         </div>
         <div className="space"></div>
         <Props>
-            <Prop>Name:{first.name}</Prop>
-            <Prop>Position:{vec2s(first.pos)}</Prop>
+            <Prop>{$t.name + ':'}{first.name}</Prop>
+            <Prop>{$t.position + ':'}{vec2s(first.pos)}</Prop>
         </Props>
         <div className="space"></div>
         <div className="components">
@@ -222,7 +221,7 @@ function Object({ first }) {
             <ReferencedBy obj={first}/>
         </div>
         <div className="space"></div>
-        <div className="prop-name">Components:</div>
+        <div className="prop-name">{$t.components + ':'}</div>
         <div className="components">{components}</div>
     </>
 }
@@ -250,7 +249,7 @@ function Parents({ obj }) {
     }
 
     return <Props>
-        <Prop>Parents: {parentEls}</Prop>
+        <Prop>{$t.parents + ':'}{parentEls}</Prop>
     </Props>
 }
 
@@ -262,7 +261,7 @@ function Children({ obj }) {
     }
 
     return <details className="component">
-        <summary>Children</summary>
+        <summary>{$t.children}</summary>
         <Props>{children}</Props>
     </details>
 }
@@ -276,7 +275,7 @@ function ReferencedBy({ obj }) {
     const empty = arr.length == 0
 
     return <details className="component" open={empty}>
-        <summary className={empty ? 'empty-component' : null}>Referenced by</summary>
+        <summary className={empty ? 'empty-component' : null}>{$t.referenced}</summary>
         <Props>{arr}</Props>
     </details>
 }
@@ -328,20 +327,20 @@ function ac(schema, componentC) {
 
 ac(ti.Transform, (c, o) => {
     return <Props>
-        <Prop>Local position:{vec2s(c.position)}</Prop>
-        <Prop>Local scale:{vec2s(c.scale)}</Prop>
-        <Prop>Local rotation:{c.rotation}</Prop>
+        <Prop>{$t.localpos + ':'}{vec2s(c.position)}</Prop>
+        <Prop>{$t.localscale + ':'}{vec2s(c.scale)}</Prop>
+        <Prop>{$t.localrot + ':'}{c.rotation}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
 
-function bs(v) { return v ? 'yes' : 'no' }
+function bs(v) { return v ? $t.yes : $t.no }
 
 ac(ti.CrystalDestroyable, (c, o) => {
     const v = meta.xpForCrystalSize[c.size] ?? '<Unknown>'
     return <Props>
-        <Prop>Drops XP:{bs(c.dropXp) + (c.dropXp ? ` (${v}xp)` : '')}</Prop>
-        <Prop>Size:{c.size}</Prop>
+        <Prop>{$t.dropsxp + ':'}{bs(c.dropXp) + (c.dropXp ? ` (${v}xp)` : '')}</Prop>
+        <Prop>{$t.size + ':'}{c.size}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -349,9 +348,9 @@ ac(ti.CrystalDestroyable, (c, o) => {
 ac(ti.Destroyable, (c, o) => {
     return <Props>
         <Prop>Hp:{c.hp}</Prop>
-        <Prop>Invincible:{bs(c.invincible)}</Prop>
+        <Prop>{$t.inv + ':'}{bs(c.invincible)}</Prop>
         <Prop>Flat damage:{bs(c.flatDamage)}</Prop>
-        <Prop>Permanent:{bs(c.permanent)}</Prop>
+        <Prop>{$t.permanent + ':'}{bs(c.permanent)}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -359,28 +358,28 @@ ac(ti.Destroyable, (c, o) => {
 ac(ti.Collider2D, (c, o) => {
     return <Props>
         <Prop>Is trigger:{bs(c.isTrigger)}</Prop>
-        <Prop>Offset:{vec2s(c.offset)}</Prop>
+        <Prop>{$t.offset + ':'}{vec2s(c.offset)}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
 
 ac(ti.BoxCollider2D, (c, o) => {
     return <Props>
-        <Prop>Size:{vec2s(c.size)}</Prop>
+        <Prop>{$t.size + ':'}{vec2s(c.size)}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
 
 ac(ti.CapsuleCollider2D, (c, o) => {
     return <Props>
-        <Prop>Size:{vec2s(c.size)}</Prop>
+        <Prop>{$t.size + ':'}{vec2s(c.size)}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
 
 ac(ti.CircleCollider2D, (c, o) => {
     return <Props>
-        <Prop>Radius:{c.radius}</Prop>
+        <Prop>{$t.radius + ':'}{c.radius}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -455,10 +454,10 @@ ac(ti.UnlockerTorch, (c, o) => {
     }
 
     return <Props>
-        <Prop>Target:<Link index={c.target} obj={o}/></Prop>
+        <Prop>{$t.target + ':'}<Link index={c.target} obj={o}/></Prop>
         <Prop>Target bis (?):<Link index={c.targetBis} obj={o}/></Prop>
         <Prop>Linked torch:<Link index={c.linkedTorch} obj={o}/></Prop>
-        <Prop>Group:<Props>{gc}</Props></Prop>
+        <Prop>{$t.group + ':'}<Props>{gc}</Props></Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -477,9 +476,9 @@ const objectiveNames = [
 
 ac(ti.UnlockerTrigger, (c, o) => {
     return <Props>
-        <Prop>Target:<Link index={c.target} obj={o}/></Prop>
+        <Prop>{$t.target + ':'}<Link index={c.target} obj={o}/></Prop>
         <Prop>Target bis (?):<Link index={c.targetBis} obj={o}/></Prop>
-        <Prop>Prereqisute:{objectiveNames[c.objectiveCleared]}</Prop>
+        <Prop>{$t.prereq + ':'}{objectiveNames[c.objectiveCleared]}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -527,40 +526,40 @@ const statsNames = [
 
 ac(ti.ModulePickup, (c, o) => {
     return <Props>
-        <Prop>Name:{moduleNames[c.moduleId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{moduleNames[c.moduleId] ?? '<Unknown>'}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
 
 ac(ti.SkillPickup, (c, o) => {
     return <Props>
-        <Prop>Name:{skillNames[c.skillId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{skillNames[c.skillId] ?? '<Unknown>'}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
 
 ac(ti.StatsPickup, (c, o) => {
     return <Props>
-        <Prop>Name:{statsNames[c.statsId] ?? '<Unknown>'}</Prop>
-        <Prop>Level:{c.level}</Prop>
+        <Prop>{$t.name + ':'}{statsNames[c.statsId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.level + ':'}{c.level}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
 
 ac(ti.Buyable, (c, o) => {
     return <Props>
-        <Prop>Price:{c.price}</Prop>
-        <Prop>For sale:{bs(c.isForSale)}</Prop>
-        <Prop>Title:{c.title}</Prop>
-        <Prop>Description:{c.description}</Prop>
-        <Prop>Owner:<Link index={c.owner} obj={o}/></Prop>
+        <Prop>{$t.price + ':'}{c.price}</Prop>
+        <Prop>{$t.forsale + ':'}{bs(c.isForSale)}</Prop>
+        <Prop>{$t.i_title + ':'}{c.title}</Prop>
+        <Prop>{$t.i_desc + ':'}{c.description}</Prop>
+        <Prop>{$t.owner + ':'}<Link index={c.owner} obj={o}/></Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
 
 ac(ti.KeyUnique, (c, o) => {
     return <Props>
-        <Prop>Name:{keyUses[c.keyId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{keyUses[c.keyId] ?? '<Unknown>'}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
@@ -590,14 +589,14 @@ const npcNames = [
 
 ac(ti.Npc, (c, o) => {
     return <Props>
-        <Prop>Name:{npcNames[c.id]}</Prop>
+        <Prop>{$t.name + ':'}{npcNames[c.id]}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
 
 ac(ti.Tunnel, (c, o) => {
     return <Props>
-        <Prop>Destination:<Link index={c.destination} obj={o}/></Prop>
+        <Prop>{$t.dest + ':'}<Link index={c.destination} obj={o}/></Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -615,8 +614,8 @@ function getExtra(e) {
 
 ac(ti.Jar, (c, o) => {
     return <Props>
-        <Prop>Drop type:{jarTypes[c.dropType] + getExtra(c)}</Prop>
-        <Prop>Size:{c.size}</Prop>
+        <Prop>{$t.droptype + ':'}{jarTypes[c.dropType] + getExtra(c)}</Prop>
+        <Prop>{$t.size + ':'}{c.size}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -644,8 +643,8 @@ function XpCalculator({ enemy }) {
 
 ac(ti.Enemy, (c, o) => {
     return <Props>
-        <Prop>Size:{c.size}</Prop>
-        <Prop>Tier:{c.tier}</Prop>
+        <Prop>{$t.size + ':'}{c.size}</Prop>
+        <Prop>{$t.tier + ':'}{c.tier}</Prop>
         <XpCalculator enemy={c} />
         <Component comp={c._base} obj={o}/>
     </Props>
@@ -674,10 +673,18 @@ function enemyLevel(e) {
     return 3 * (e.tier - 1) + e.size
 }
 
+/**
+@param {object} arg1
+@param {any=} arg1.children
+*/
 function Props({ children }) {
     return <div className="props">{children}</div>
 }
 
+/**
+@param {object} arg1
+@param {any=} arg1.children
+*/
 function Prop({ children }) {
     if(children.length != 2) {
         console.error('Number of children is incorrect:', children.length, children)
@@ -702,13 +709,13 @@ function Other({ nearby, nearbyReferenceInfos }) {
         nearbyC.push(
             <div key={i} className="hanging">
                 <Link index={it.index} obj={nearbyObj}/>
-                <span> [away{nbsp}{it.distance.toFixed(2)}]</span>
+                <span> [{$t.away}{nbsp}{it.distance.toFixed(2)}{$t.m}]</span>
             </div>
         )
     }
 
     return <div className="nearby">
-        <div className="prop-name">Objects nearby:</div>
+        <div className="prop-name">{$t.objnear + ':'}</div>
         {nearbyC}
     </div>
 }

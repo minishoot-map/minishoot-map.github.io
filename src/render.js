@@ -1,3 +1,4 @@
+// @ts-check
 import * as canvasDisplay from './canvas.js'
 import * as backgroundsDisplay from './renderBackground.js'
 import * as collidersDisplay from './renderColliders.js'
@@ -108,9 +109,7 @@ const gl = canvas.getContext('webgl2', { alpha: false })
 if (!gl) {
     try { canvasParent.removeChild(canvas) }
     catch(err) { console.error(err) }
-    canvasParent.append(document.createTextNode(
-        "Sorry, your device doesn't support WebGL2"
-    ))
+    canvasParent.append(document.createTextNode($t.sorry_webgl))
     throw new Error('WebGL 2 is not supported.')
 }
 
@@ -203,53 +202,53 @@ function requestRender(priority/* 0 - immediate, 1 - animation, 2 - idle */, opt
 
 const filters = [
     [
-        '$Object', 'Markers', true, 'filters',
+        '$Object', $t.markers, true, 'filters',
         [
-            ['Npc', 'NPCs', true, 'filters', []],
+            ['Npc', $t.npcs, true, 'filters', []],
             ['NpcTiny', 'Race spirits', true, 'filters', []],
             ['Pickup', 'Pickups', true, 'filters', [
-                ['CrystalKey', 'Regular keys', true, 'filters', []],
-                ['BossKey', 'Boss keys', true, 'filters', []],
-                ['CrystalBoss', 'Boss drop keys', true, 'filters', []],
-                ['KeyUnique', 'Unique keys', true, 'filters', []],
-                ['ModulePickup', 'Module pickups', true, 'filters', []],
-                ['SkillPickup', 'Skill pickups', true, 'filters', []],
-                ['StatsPickup', 'Stats pickups', true, 'filters', []],
-                ['ScarabPickup', 'Scarabs', true, 'filters', []],
-                ['LorePickup', 'Lore tablets', true, 'filters', []],
-                ['MapPickup', 'Map pieces', true, 'filters', []],
+                ['CrystalKey', $t.regkey, true, 'filters', []],
+                ['BossKey', $t.bosskey, true, 'filters', []],
+                ['CrystalBoss', $t.bossdropkey, true, 'filters', []],
+                ['KeyUnique', $t.uniquekey, true, 'filters', []],
+                ['ModulePickup', $t.module, true, 'filters', []],
+                ['SkillPickup', $t.skill, true, 'filters', []],
+                ['StatsPickup', $t.stats, true, 'filters', []],
+                ['ScarabPickup', $t.scarab, true, 'filters', []],
+                ['LorePickup', $t.lore, true, 'filters', []],
+                ['MapPickup', $t.mappiece, true, 'filters', []],
             ], true],
             [
-                'Enemy', 'Enemies', true, 'filters',
+                'Enemy', $t.enemy, true, 'filters',
                 [
-                    ['size', 'Filter by size', false, 'number', 3],
-                    ['tier', 'Filter by tier', false, 'number', 1],
+                    ['size', $t.filter_by_size, false, 'number', 3],
+                    ['tier', $t.filter_by_tier, false, 'number', 1],
                 ], true
             ],
             [
-                'Jar', 'Jars', true, 'filters',
+                'Jar', $t.jar, true, 'filters',
                 [
-                    ['size', 'Filter by size', false, 'number', 0],
+                    ['size', $t.filter_by_size, false, 'number', 0],
                     [
-                        'dropType', 'Filter by drop type', false, 'enum',
+                        'dropType', $t.filter_by_drop, false, 'enum',
                         [
-                            [0, 'nothing [0]', false],
+                            [0, $t.j0 + ' [0]', false],
                             [1, 'hp [1]', false],
-                            [2, 'random [2]', false],
-                            [3, 'big crystal [3]', true],
-                            [4, 'energy [4]', false],
-                            [5, 'full energy [5]', false],
-                            [6, '65 big crystals [6]', true],
+                            [2, $t.j2 + ' [2]', false],
+                            [3, $t.j3 + ' [3]', true],
+                            [4, $t.j4 + ' [4]', false],
+                            [5, $t.j5 + ' [5]', false],
+                            [6, $t.j6 + ' [6]', true],
                         ],
                     ]
                 ], true
             ],
             [
-                'CrystalDestroyable', 'Crystals', true, 'filters',
+                'CrystalDestroyable', $t.crystal, true, 'filters',
                 [
-                    ['dropXp', 'Filter by xp drop', true, 'boolean', [false, true]],
+                    ['dropXp', $t.filter_by_xp, true, 'boolean', [false, true]],
                     [
-                        'size', 'Filter by size', false, 'enum',
+                        'size', $t.filter_by_size, false, 'enum',
                         (() => {
                             const result = []
                             for(let i = 0; i < xpForCrystalSize.length; i++) {
@@ -262,13 +261,13 @@ const filters = [
             ],
             ['Unlocker', 'Unlockers', true, 'filters', []],
             ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
-            ['Transition', 'Transitions', true, 'filters', []],
-            ['Tunnel', 'Tunnels', true, 'filters', []],
-            ['Torch', 'Torches', false, 'filters', []],
+            ['Transition', $t.transition, true, 'filters', []],
+            ['Tunnel', $t.tunnel, true, 'filters', []],
+            ['Torch', $t.torch, false, 'filters', []],
         ],
     ],
     [
-        '$Rest', 'All other objects (slow!)', false, 'filters', [],
+        '$Rest', $t.other, false, 'filters', [],
     ],
     [
         '$Collider', 'Colliders', false, 'filters',
@@ -314,10 +313,12 @@ const filters = [
         ],
     ],
     [
-        '$Background', 'Backgrounds', true, 'filters',
+        '$Background', $t.background, true, 'filters',
         []
     ]
 ]
+
+
 
 function prepFiltersFilter(filter, res) {
     const propFilters = []

@@ -1,5 +1,13 @@
 {
+    "include": ["src"],
     "compilerOptions": {
-        "lib": ["dom", "esnext"]
+        "lib": ["dom", "esnext"],
+        "allowJs": true,
+        "module": "ESNext",
+        "target": "es6",
+        "isolatedModules": true,
+        "moduleResolution": "bundler",
+        "skipLibCheck": true,
+        "jsx": "react-jsx"
     }
 }

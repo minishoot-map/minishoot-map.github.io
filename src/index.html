@@ -1,7 +1,8 @@
 <!DOCTYPE HTML>
-<html lang="en">
+<html lang="$t.lang">
     <head>
-        <title>Minishoot' Adventures Map</title>
+        <meta charset="UTF-8">
+        <title>$t.title</title>
 
 <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
 <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -20,15 +21,15 @@
         <script type="module" src="render.js"></script>
     </head>
     <body>
-        <noscript>Sorry, your device doesn't support JavaScript</noscript>
+        <noscript>$t.sorry_js</noscript>
         <div class="container">
             <div class="canvas-cont"><canvas id="glCanvas"></canvas></div>
             <div id="tabs">
                 <div class='menu-type'>
-                    <label class="map-button"><input type='radio' name='menu' value='0' checked>Map</label>
-                    <label><input type='radio' name='menu' value='1'>Object</label>
-                    <label><input type='radio' name='menu' value='2'>Filters</label>
-                    <label><input type='radio' name='menu' value='3'>About</label>
+                    <label class="map-button"><input type='radio' name='menu' value='0' checked>$t.map</label>
+                    <label><input type='radio' name='menu' value='1'>$t.object</label>
+                    <label><input type='radio' name='menu' value='2'>$t.filters</label>
+                    <label><input type='radio' name='menu' value='3'>$t.about</label>
                 </div>
             </div>
             <div id="side-menu">
@@ -36,14 +37,13 @@
                 <div class="filter-menu"></div>
                 <div class="about-menu">
                     <p>
-                    The most complete <a target="blank" href="https://store.steampowered.com/app/1634860/">Minishoot' Adventures</a> map.
-                    All collectables, enemies and locations.
+                        $t.desc
                     </p>
                     <p>
-                        This map contains every game object from the <i>v1</i> version of the game.
+                        $t.desc2
                     </p>
                     <p>
-                        Source code is available on
+                        $t.desc3
                         <a target="blank" href="https://github.com/minishoot-map/minishoot-map.github.io">GitHub</a>.
                     </p>
                 </div>

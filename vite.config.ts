@@ -1,6 +1,8 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
 import inlineWorker from './inlineWorker.js'
+import translate from './translate.js'
+import strings from './src/strings'
 
 import json5 from 'json5'
 
@@ -131,7 +133,13 @@ export default defineConfig(({ command, mode, isSsrBuild, isPreview }) => {
                 workerPath: srcPath('worker/index.js'),
                 assignTo: 'window.worker',
             }),
+            inlineWorker({
+                htmlPath: srcPath('ru.html'),
+                workerPath: srcPath('worker/index.js'),
+                assignTo: 'window.worker',
+            }),
             injectPreloads(command),
+            translate(strings),
         ],
     }
 })

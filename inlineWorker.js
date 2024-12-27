@@ -57,7 +57,13 @@ ${input.assignTo} = (() => {
         },
         buildStart(opts) {
             if(!shouldInline) return
-            opts.input.push(importCodeSrcId) // is this allowed?
+            // is this allowed?
+            if(Array.isArray(opts.input)) {
+                opts.input.push(importCodeSrcId)
+            }
+            else {
+                opts.input[importCodeSrcId] = importCodeSrcId
+            }
         },
         resolveId: (id) => {
             if(!shouldInline) return
