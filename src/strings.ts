@@ -1,19 +1,47 @@
 // @ts-check
 
+const p1 = 'minishoot adventures '
+const add = [
+    'map', 'module', 'pickup', 'race spirit', 'health crystal', 'upgrage',
+    'red coin', 'bosses', 'map fragment', 'lore fragment', 'key', 'dungeon',
+    'temple', 'npc', 'enemy', 'scarab', 'jar'
+]
+const add_ru = [
+    'карта', 'модуль', 'pickup', 'гонки', 'кристалл здоровья', 'улучшение',
+    'красная монета', 'боссы', 'фрагмент карты', 'фрагмент лора', 'ключ', 'подземелье',
+    'храм', 'нпс', 'враг', 'скарабей', 'кувшин'
+]
+let result = add.map(it => p1 + it).join(', ')
+let result_ru = add_ru.map(it => p1 + it).join(', ')
+
+
 export default {
     lang: [`en`, `ru`],
     title: [`Minishoot' Adventures Map`, `Карта Minishoot' Adventures`],
+    head_desc: [
+        "The most complete Minishoot' Adventures map. All collectables and locations.",
+        "Самая полная карта Minishoot' Adventures. Все объекты и локации.",
+    ],
+    head_keywords: [result, result_ru],
+    about_map: [
+        'About the map:',
+        'Информация о карте:'
+    ],
     desc: [
-        `The most complete <a target="blank" href="https://store.steampowered.com/app/1634860/">Minishoot' Adventures</a> map.`,
-        `Самая полная карта <a target="blank" href="https://store.steampowered.com/app/1634860/">Minishoot' Adventures</a>.`
+        `The most complete <a target="blank" href="https://store.steampowered.com/app/1634860/">Minishoot' Adventures</a> map. Every object and location.`,
+        `Самая полная карта <a target="blank" href="https://store.steampowered.com/app/1634860/">Minishoot' Adventures</a>. Все объекты и локации.`
     ],
     desc2: [
-        `This map contains every game object from the <i>v1</i> version of the game.`,
-        `Карта содержит все игровые объекты из версии <i>v1</i> игры.`
+        'This map contains all race spirit locations, modules, coins, scarabs, keys, health, energy and other pickups. All NPCs and enemies, map and lore fragments, buttons, XP crystals, and every other game object.',
+        'Карта содержит все гонки, модули, монеты, скарабеев, ключи, апгрейды HP, энергии и пр., NPC, врагов, фрагменты карты и лора, кнопки, кристаллы опыта и все остальные игровые объекты из версии <i>v1</i> игры.',
+    ],
+    about_proj: [
+        'About the project:',
+        'О проекте:'
     ],
     desc3: [
-        `Source code is available on`,
-        `Исходный код доступен на`
+        `The data and images are extracted from the <i>v1</i> version of the game. The source code is available on`,
+        `Данные и изображения извлечены из версии <i>v1</i> игры. Исходный код доступен на`
     ],
     map: [`Map`, `Карта`],
     object: [`Object`, `Объект`],
