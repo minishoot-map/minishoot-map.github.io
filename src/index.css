@@ -254,3 +254,19 @@ body {
     display: flex;
     flex-direction: column;
 }
+
+.preset-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 0.2rem;
+    align-items: center;
+    & > select {
+        padding: 0.2rem 0.5rem;
+        flex: 1 1 5rem;
+    }
+}
+
+.presets {
+    margin-bottom: 1rem;
+}

@@ -53,14 +53,14 @@ if(__worker) {
             sideMenu.setCurrentObject(obj)
             context.currentObject = obj
             context.requestRender(1)
-            updUrl(d.first)
+            if(d.first) updUrl(d.first)
         }
         else if(d.type === 'getInfo') {
             const obj = { first: d.object }
             sideMenu.setCurrentObject(obj)
             context.currentObject = obj
             context.requestRender(1)
-            updUrl(d.object)
+            if(d.object) updUrl(d.object)
         }
         else if(d.type === 'getSceneInfo') {
             const obj = { scene: d.scene }
@@ -412,6 +412,7 @@ function sendFiltersUpdate(context) {
         const last = fp.last
         const sel = fp.selected
 
+        let send
         if(sel == 'custom') {
             const filters = extractMarkerFilters(cur[sel])
             filters.includeRest = cur[sel][1][2]
@@ -420,15 +421,22 @@ function sendFiltersUpdate(context) {
                     || !checkEquality(filters, last.value)
                     || filters.includeRest !== last.value.includeRest
             ) {
-                last.selected = sel
-                last.value = filters
+                send = filters
+            }
+            last.value = filters
+        }
+        else if(last.selected !== sel) {
+            send = {}
+        }
 
-                try {
-                    worker.postMessage({ type: 'filters', selected: sel, filters })
-                }
-                catch(e) { console.error(e) }
+        last.selected = sel
+
+        try {
+            if(send != null) {
+                worker.postMessage({ type: 'filters', selected: sel, filters: send })
             }
         }
+        catch(e) { console.error(e) }
     }
 
     {
@@ -443,7 +451,7 @@ function sendFiltersUpdate(context) {
             circularDisplay.setFiltered(context, colliders)
         }
 
-        backgroundsDisplay.setFiltered(context, cur.background)
+        backgroundsDisplay.setFiltered(context, cur.background[2])
     }
 }
 
@@ -476,10 +484,10 @@ const context = {
     currentObject: null,
     sizes: { fontSize: 16, heightCssPx: 1000 },
     filtersUpdated() {
+        sendFiltersUpdate(this)
+
         try { sideMenu.filtersUpdated() }
         catch(e) { console.error(e) }
-
-        sendFiltersUpdate(this)
     },
     onClick(x, y) {
         worker?.postMessage({ type: 'click', x, y })

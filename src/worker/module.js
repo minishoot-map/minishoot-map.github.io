@@ -850,17 +850,100 @@ async function getInfo(index) {
 }
 
 function calcMarkerFilters(name, filters) {
-    const fs = {}
-    for(let i = 0; i < filters.length; i++) {
-        fs[ti[filters[i][0]]] = filters[i][1]
+    console.log(JSON.stringify(name), filters)
+    let filteredIndices
+    if(name == 'custom') {
+        const fs = {}
+        for(let i = 0; i < filters.length; i++) {
+            fs[ti[filters[i][0]]] = filters[i][1]
+        }
+
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'raceSpirits') {
+        const fs = { [ti.NpcTiny]: [] }
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'redCoins') {
+        const fs = {
+            [ti.Jar]: [['dropType', [3, 6]]],
+            [ti.Enemy]: [['size', [3]]],
+        }
+        const es = { [ti.Boss]: true }
+        filteredIndices = customFilters(fs, es)
+    }
+    else if(name == 'hp') {
+        const fs = { [ti.StatsPickup]: [['statsId', [11]]] }
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'energy') {
+        const fs = { [ti.StatsPickup]: [['statsId', [8]]] }
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'scarabs') {
+        const fs = { [ti.ScarabPickup]: [] }
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'modules') {
+        const fs = {
+            [ti.StatsPickup]: [['statsId', [
+                0, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15
+            ]]],
+            [ti.ModulePickup]: [],
+            [ti.SkillPickup]: [],
+        }
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'map') {
+        const fs = { [ti.MapPickup]: [], [ti.LorePickup]: [] }
+        filteredIndices = customFilters(fs)
+    }
+    else if(name == 'dungeon') {
+        filteredIndices = findNames([
+            'Overworld > Dungeon1_0',
+            'Overworld > Dungeon2_0',
+            'Overworld > Dungeon3_0',
+            'Overworld > Dungeon4_0',
+            'Overworld > Dungeon5_0',
+        ])
+    }
+    else if(name == 'temples') {
+        filteredIndices = findNames([
+            'Overworld > Temple1_0',
+            'Overworld > Temple2_0',
+            'Overworld > Temple3_0',
+            'Overworld > Tower_1',
+            'Overworld > Tower_2',
+            'Overworld > Tower_3',
+            'Overworld > Tower_4',
+            'Overworld > Tower_5',
+            'Overworld > Tower_6',
+            'Overworld > Tower_7',
+            'Overworld > Tower_8',
+            'Overworld > Tower_9',
+            'Overworld > Tower_10',
+        ])
     }
 
+    if(!filteredIndices) {
+        filteredIndices = []
+    }
+
+    message({ type: 'marker-filters', markersIndices: filteredIndices })
+
+    filteredMarkersIndices = filteredIndices
+    filteredMarkersIndices.includeRest = filters.includeRest
+    onClickCompletable.haveFilters = true
+    onClickCompletable.update()
+}
+
+function customFilters(filters, excludes) {
     const filteredIndices = Array(allMarkersInfo.length)
     filteredIndices.length = 0
     for(let i = 0; i < allMarkersInfo.length; i++) {
         const marker = allMarkersInfo[i];
         const comp = marker.component
-        const fieldsFilter = fs[comp._schema]
+        const fieldsFilter = filters[comp._schema]
         if(!fieldsFilter) continue
 
         let add = true
@@ -872,13 +955,30 @@ function calcMarkerFilters(name, filters) {
             break
         }
 
+        if(add && excludes) {
+            const cs = marker.object.components
+            for(let i = 0; i < cs.length; i++) {
+                if(!excludes[cs[i]._schema]) continue
+
+                add = false
+                break
+            }
+        }
+
         if(add) filteredIndices.push(i)
     }
 
-    message({ type: 'marker-filters', markersIndices: filteredIndices });
+    return filteredIndices
+}
 
-    filteredMarkersIndices = filteredIndices
-    filteredMarkersIndices.includeRest = filters.includeRest
-    onClickCompletable.haveFilters = true
-    onClickCompletable.update()
+function findNames(names) {
+    const filteredIndices = Array(names.length)
+    filteredIndices.length = 0
+    for(let i = 0; i < allMarkersInfo.length; i++) { 
+        const marker = allMarkersInfo[i]
+        const obj = marker.object
+        if(!names.includes(obj.name)) continue
+        filteredIndices.push(i)
+    }
+    return filteredIndices
 }

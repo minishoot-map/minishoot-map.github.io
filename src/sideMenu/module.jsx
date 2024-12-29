@@ -117,16 +117,50 @@ function Filter({ filter }) {
     </div>
 }
 
+function Presets() {
+    const s = context.filterPresets.selected
+    if(s === 'custom') {
+        const fp = context.filterPresets
+        return <div key={s} className="presets">
+            <Filter key={0} filter={fp.cur[s][0]}/>
+            <Filter key={1} filter={fp.cur[s][1]}/>
+        </div>
+    }
+    else if(s === 'raceSpirits' || s === 'redCoins') {
+        return <div key={s} className="presets"></div>
+    }
+}
+
+function PresetSelector() {
+    filtersRev()
+    function changed(e) {
+        const v = e.target.value
+        context.filterPresets.selected = v
+        context.filtersUpdated()
+    }
+    return <label className="preset-selector">
+        <span>Preset:</span>
+        <select name="options" value={context.filterPresets.selected} onChange={changed}>
+            <option value="custom">⚙ Custom</option>
+            <option value="dungeon">💀 Dungeon entrances</option>
+            <option value="energy">⚡ Energy upgrades</option>
+            <option value="hp">💙 Heart crystals</option>
+            <option value="map">🗺️ Map & Lore fragments</option>
+            <option value="modules">🛠️ Modules & Skills</option>
+            <option value="raceSpirits">🏁 Race spirits</option>
+            <option value="redCoins">🔴 Red coins (Big crystals)</option>
+            <option value="scarabs">🪲 Scarabs</option>
+            <option value="temples">🏛️ Temple & Tower entrances</option>
+        </select>
+    </label>
+}
+
 function FilterMenu() {
     filtersRev()
-    const filtersA = []
-    const fp = context.filterPresets
     const fs = context.flags
     return <div className='filter-menu'>
-        <R.Fragment key={fp.selected}>
-            <Filter key={0} filter={fp.cur[fp.selected][0]}/>
-            <Filter key={1} filter={fp.cur[fp.selected][1]}/>
-        </R.Fragment>
+        <PresetSelector/>
+        <Presets/>
         <Filter key='colliders' filter={fs.cur.colliders}/>
         <Filter key='background' filter={fs.cur.background}/>
     </div>

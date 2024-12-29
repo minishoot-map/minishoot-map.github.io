@@ -195,7 +195,7 @@ export function setFiltered(context, { markersIndices }) {
 function checkFilterRest(context) {
     const fp = context.filterPresets
     const cur = fp.cur[fp.selected]
-    return cur.includeRest
+    return cur?.includeRest
 }
 
 function shouldRenderRest(context) {
