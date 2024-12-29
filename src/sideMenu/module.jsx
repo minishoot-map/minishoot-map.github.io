@@ -48,7 +48,7 @@ function Filter({ filter }) {
     }
     else if(type === 'number') {
         const changed = (e) => {
-            filter[4] = e.target.value
+            filter[4] = parseFloat(e.target.value)
             context.filtersUpdated()
         }
         inner = <input type='number' style={{width: '3rem'}} onChange={changed} value={param}/>
