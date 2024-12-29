@@ -192,10 +192,16 @@ export function setFiltered(context, { markersIndices }) {
     recalcCurrentMarkers(context)
 }
 
+function checkFilterRest(context) {
+    const fp = context.filterPresets
+    const cur = fp.cur[fp.selected]
+    return cur.includeRest
+}
+
 function shouldRenderRest(context) {
     if(!__render_markers) return
     const rd = context.specialMarker
-    if(rd?.restOk !== true || !context.filters[1][2]) return
+    if(rd?.restOk !== true || !checkFilterRest(context)) return
 
     const curSelectedI = context.currentObject?.first?.markerI
     if(curSelectedI != rd.selectedI) {

@@ -34,13 +34,13 @@ const getInfoCompletable = {
 const filtersCompletable = {
     haveProcessedObjects: false,
     /** @type {object} */
-    markers: null,
+    filters: null,
     update() {
-        if(!(this.haveProcessedObjects && this.markers != null)) {
+        if(!(this.haveProcessedObjects && this.filters != null)) {
             return
         }
-        calcMarkerFilters(this.markers)
-        this.markers = null
+        calcMarkerFilters(this.filters.selected, this.filters.filters)
+        this.filters = null
     },
 }
 
@@ -62,7 +62,7 @@ export function onmessage(it) {
         getInfoCompletable.update()
     }
     else if(it.type == 'filters') {
-        filtersCompletable.markers = it.markers
+        filtersCompletable.filters = { selected: it.selected, filters: it.filters }
         filtersCompletable.update()
     }
     else {
@@ -849,7 +849,7 @@ async function getInfo(index) {
     }
 }
 
-function calcMarkerFilters(filters) {
+function calcMarkerFilters(name, filters) {
     const fs = {}
     for(let i = 0; i < filters.length; i++) {
         fs[ti[filters[i][0]]] = filters[i][1]

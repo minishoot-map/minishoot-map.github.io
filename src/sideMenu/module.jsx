@@ -120,11 +120,15 @@ function Filter({ filter }) {
 function FilterMenu() {
     filtersRev()
     const filtersA = []
-    for(let i = 0; i < context.filters.length; i++) {
-        filtersA.push(<Filter key={i} filter={context.filters[i]}/>)
-    }
+    const fp = context.filterPresets
+    const fs = context.flags
     return <div className='filter-menu'>
-        {filtersA}
+        <R.Fragment key={fp.selected}>
+            <Filter key={0} filter={fp.cur[fp.selected][0]}/>
+            <Filter key={1} filter={fp.cur[fp.selected][1]}/>
+        </R.Fragment>
+        <Filter key='colliders' filter={fs.cur.colliders}/>
+        <Filter key='background' filter={fs.cur.background}/>
     </div>
 }
 

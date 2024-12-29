@@ -200,7 +200,7 @@ function requestRender(priority/* 0 - immediate, 1 - animation, 2 - idle */, opt
     }
 }
 
-const filters = [
+const filtersCustom = [
     [
         '$Object', $t.markers, true, 'filters',
         [
@@ -269,56 +269,56 @@ const filters = [
     [
         '$Rest', $t.other, false, 'filters', [],
     ],
-    [
-        '$Collider', 'Colliders', false, 'filters',
-        [
-            [
-                'layer', 'Filter by layer', true, 'enum',
-                [
-                    // TODO: auto calculate which layers are absent from colliders
-                    [0, '0', false],
-                    // [1, '1', true],
-                    // [2, '2', true],
-                    [3, '3', false],
-                    [4, 'water [4]', true],
-                    [5, '5', false],
-                    [6, 'deep water [6]', true],
-                    // [7, '7', true],
-                    // [8, '8', true],
-                    // [9, '9', true],
-                    // [10, '10', true],
-                    [11, '11', false],
-                    [12, 'destroyable [12]', true],
-                    [13, 'destroyable [13]', true],
-                    [14, 'wall [14]', true],
-                    [15, '15', false],
-                    [16, 'hole [16]', true],
-                    [17, 'trigger? [17]', false],
-                    [18, '18', false],
-                    // [19, '19', true],
-                    [20, '20', false],
-                    [21, '21', false],
-                    // [22, '22', true],
-                    [23, 'static [23]', true],
-                    // [24, '24', true],
-                    [25, 'bridge [25]', true],
-                    [26, 'destroyable [26]', true],
-                    // [27, '27', true],
-                    // [28, '28', true],
-                    [29, '29', false],
-                    // [30, '30', true],
-                    [31, '31', false],
-                ], true
-            ]
-        ],
-    ],
-    [
-        '$Background', $t.background, true, 'filters',
-        []
-    ]
 ]
 
+const colliders = [
+    '$Collider', 'Colliders', false, 'filters',
+    [
+        [
+            'layer', 'Filter by layer', true, 'enum',
+            [
+                // TODO: auto calculate which layers are absent from colliders
+                [0, '0', false],
+                // [1, '1', true],
+                // [2, '2', true],
+                [3, '3', false],
+                [4, 'water [4]', true],
+                [5, '5', false],
+                [6, 'deep water [6]', true],
+                // [7, '7', true],
+                // [8, '8', true],
+                // [9, '9', true],
+                // [10, '10', true],
+                [11, '11', false],
+                [12, 'destroyable [12]', true],
+                [13, 'destroyable [13]', true],
+                [14, 'wall [14]', true],
+                [15, '15', false],
+                [16, 'hole [16]', true],
+                [17, 'trigger? [17]', false],
+                [18, '18', false],
+                // [19, '19', true],
+                [20, '20', false],
+                [21, '21', false],
+                // [22, '22', true],
+                [23, 'static [23]', true],
+                // [24, '24', true],
+                [25, 'bridge [25]', true],
+                [26, 'destroyable [26]', true],
+                // [27, '27', true],
+                // [28, '28', true],
+                [29, '29', false],
+                // [30, '30', true],
+                [31, '31', false],
+            ], true
+        ],
+    ],
+]
 
+const background = [
+    '$Background', $t.background, true, 'filters',
+    []
+]
 
 function prepFiltersFilter(filter, res) {
     const propFilters = []
@@ -406,28 +406,45 @@ function extractColliderFilters(filters) {
 }
 
 function sendFiltersUpdate(context) {
-    const lastFilters = context.lastFilters
+    {
+        const fp = context.filterPresets
+        const cur = fp.cur
+        const last = fp.last
+        const sel = fp.selected
 
-    const markers = extractMarkerFilters(context.filters)
-    markers.includeRest = context.filters[1][2]
-    if(!checkEquality(markers, lastFilters.markers)
-        || markers.includeRest !== lastFilters.includeRest
-    ) {
-        lastFilters.markers = markers
+        if(sel == 'custom') {
+            const filters = extractMarkerFilters(cur[sel])
+            filters.includeRest = cur[sel][1][2]
+            if(
+                last.selected !== sel
+                    || !checkEquality(filters, last.value)
+                    || filters.includeRest !== last.value.includeRest
+            ) {
+                last.selected = sel
+                last.value = filters
 
-        try { worker.postMessage({ type: 'filters', markers }) }
-        catch(e) { console.error(e) }
+                try {
+                    worker.postMessage({ type: 'filters', selected: sel, filters })
+                }
+                catch(e) { console.error(e) }
+            }
+        }
     }
 
-    const colliders = extractColliderFilters(context.filters)
-    if(!checkEquality(colliders, lastFilters.colliders)) {
-        lastFilters.colliders = colliders
+    {
+        const cur = context.flags.cur
+        const last = context.flags.last
 
-        collidersDisplay.setFiltered(context, colliders)
-        circularDisplay.setFiltered(context, colliders)
+        const colliders = extractColliderFilters(cur.colliders)
+        if(!checkEquality(colliders, last.colliders)) {
+            last.colliders = colliders
+
+            collidersDisplay.setFiltered(context, colliders)
+            circularDisplay.setFiltered(context, colliders)
+        }
+
+        backgroundsDisplay.setFiltered(context, cur.background)
     }
-
-    backgroundsDisplay.setFiltered(context, context.filters[3][2])
 }
 
 const context = {
@@ -436,8 +453,26 @@ const context = {
     requestRender,
     camera: { posX: 0, posY: 33, scale: 10 },
     canvasSize: [],
-    filters,
-    lastFilters: {},
+    filterPresets: {
+        selected: 'custom',
+        cur: {
+            custom: filtersCustom,
+        },
+        last: {
+            selected: 'custom',
+            value: {},
+        },
+    },
+    flags: {
+        cur: {
+            colliders: colliders,
+            background: background,
+        },
+        last: {
+            colliders: {},
+            // background: {},
+        },
+    },
     currentObject: null,
     sizes: { fontSize: 16, heightCssPx: 1000 },
     filtersUpdated() {
