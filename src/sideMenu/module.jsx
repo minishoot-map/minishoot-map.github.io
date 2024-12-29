@@ -67,8 +67,14 @@ function Filter({ filter }) {
             context.filtersUpdated()
         }
         inner = <div className='filter-list'>
-            <label><input type='checkbox' checked={param[0]} onChange={changed(0)}/>$t.no</label>
-            <label><input type='checkbox' checked={param[1]} onChange={changed(1)}/>$t.yes</label>
+            <label>
+                <input type='checkbox' checked={param[0]} onChange={changed(0)}/>
+                {$t.no}
+            </label>
+            <label>
+                <input type='checkbox' checked={param[1]} onChange={changed(1)}/>
+                {$t.yes}
+            </label>
         </div>
     }
     else if(type === 'enum') {
