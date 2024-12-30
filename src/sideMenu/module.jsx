@@ -171,7 +171,7 @@ function PresetSelector() {
 function FilterMenu() {
     filtersRev()
     const fs = context.flags
-    return <div className='filter-menu'>
+    return <div>
         <PresetSelector/>
         <Presets/>
         <Filter key='colliders' filter={fs.cur.colliders}/>
@@ -182,12 +182,12 @@ function FilterMenu() {
 function ObjectMenu() {
     const obj = useCurrentObject()
     if(obj.data?.scene != null) {
-        return <div key={obj.tick} className='object-menu'>
+        return <div key={obj.tick}>
             <Scene scene={obj.data.scene}/>
         </div>
     }
     else {
-        return <div key={obj.tick} className='object-menu'>
+        return <div key={obj.tick}>
             <Object first={obj.data?.first}/>
             <div className="space"></div>
             <Other nearby={obj.data?.nearby} nearbyReferenceInfos={obj.data?.nearbyReferenceInfos}/>

@@ -113,10 +113,32 @@ body {
 
 #side-menu {
     display: flex;
-    overflow: scroll;
     flex-direction: column;
     padding-left: 0.2rem;
     padding-right: 0.2rem;
+    /* fair. Overflowing the parent is the default,
+        even if the parent has height smaller than 
+        your height. Just overflow. Aldo don't fogret
+        to force other items in the same row to overflow
+    */
+    min-height: 0;
+}
+
+.object-menu, .filter-menu {
+    /* do not overflow please. If your parent doesn't overflow, 
+        it doesn't mean it's your turn. Especially given that your
+        only child element has `overflow: scroll;`. Maybe let it
+        scroll, no? CSS?
+    */
+    max-height: 100%;
+}
+
+.about-menu, .object-menu > *, .filter-menu > * {
+    /* do not overflow please. You can literally scroll.
+        Look line 1 line below...
+    */
+    max-height: 100%;
+    overflow: scroll;
 }
 
 .menu-type {
