@@ -399,7 +399,7 @@ ac(ti.Transform, (c, o) => {
 function bs(v) { return v ? $t.yes : $t.no }
 
 ac(ti.CrystalDestroyable, (c, o) => {
-    const v = meta.xpForCrystalSize[c.size] ?? '<Unknown>'
+    const v = meta.xpForCrystalSize[c.size] ?? Unknown
     return <Props>
         <Prop>{$t.dropsxp + ':'}{bs(c.dropXp) + (c.dropXp ? ` (${v}xp)` : '')}</Prop>
         <Prop>{$t.size + ':'}{c.size}</Prop>
@@ -447,10 +447,10 @@ ac(ti.CircleCollider2D, (c, o) => {
 })
 
 function Link({ index, obj }) {
-    const referenceInfo = obj.referenceInfos[index] ?? []
-    const displayName = referenceInfo[0] != null ? referenceInfo[0] || '<No name>' : '<Unknown>'
+    const referenceInfo = obj.referenceInfos[index]
 
-    if(index != null) {
+    if(referenceInfo != null) {
+        const displayName = referenceInfo[0] || <i>{'<No name>'}</i>
         const url = new URL(window.location.href)
         if(referenceInfo[1] != null && referenceInfo[2] != null) {
             url.searchParams.set('posx', referenceInfo[1])
@@ -469,7 +469,7 @@ function Link({ index, obj }) {
         return <a href={url} onClick={onClick}>{displayName}</a>
     }
     else {
-        return <span>{displayName}</span>
+        return <span><i>{'<None>'}</i></span>
     }
 }
 
@@ -500,7 +500,7 @@ ac(ti.Unlocker, (c, o) => {
     }
 
     return <Props>
-        <Prop>KeyUse:{keyUses[c.keyUse] ?? '<Unknown>'}</Prop>
+        <Prop>KeyUse:{keyUses[c.keyUse] ?? Unknown}</Prop>
         <Prop>{$t.target + ':'}<Link index={c.target} obj={o}/></Prop>
         <Prop>Target bis (?):<Link index={c.targetBis} obj={o}/></Prop>
         <Prop>{$t.group + ':'}<Props>{gc}</Props></Prop>
@@ -586,23 +586,25 @@ const statsNames = [
 	'PowerSlowLevel',
 ]
 
+const Unknown = <i>{'<Unknown'}</i>
+
 ac(ti.ModulePickup, (c, o) => {
     return <Props>
-        <Prop>{$t.name + ':'}{moduleNames[c.moduleId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{moduleNames[c.moduleId] ?? Unknown}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
 
 ac(ti.SkillPickup, (c, o) => {
     return <Props>
-        <Prop>{$t.name + ':'}{skillNames[c.skillId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{skillNames[c.skillId] ?? Unknown}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
 
 ac(ti.StatsPickup, (c, o) => {
     return <Props>
-        <Prop>{$t.name + ':'}{statsNames[c.statsId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{statsNames[c.statsId] ?? Unknown}</Prop>
         <Prop>{$t.level + ':'}{c.level}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
@@ -621,7 +623,7 @@ ac(ti.Buyable, (c, o) => {
 
 ac(ti.KeyUnique, (c, o) => {
     return <Props>
-        <Prop>{$t.name + ':'}{keyUses[c.keyId] ?? '<Unknown>'}</Prop>
+        <Prop>{$t.name + ':'}{keyUses[c.keyId] ?? Unknown}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 });
