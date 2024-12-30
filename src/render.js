@@ -69,6 +69,12 @@ if(__worker) {
             context.requestRender(1)
             updUrlScene(d.scene)
         }
+        else if(d.type === 'getInfoError') {
+            const obj = { error: true }
+            sideMenu.setCurrentObject(obj)
+            context.currentObject = obj
+            context.requestRender(1)
+        }
         else if(d.type === 'colliders-done') {
             const it = {
                 verts: d.verts,
@@ -596,8 +602,10 @@ try {
         context.requestRender(1)
     }
     if(isFinite(obji)) {
+        const obj = { loading: true }
+        context.currentObject = obj
         worker?.postMessage({ type: 'getInfo', index: obji })
-        sideMenu.setCurrentObjectLoading()
+        sideMenu.setCurrentObject(obj)
     }
 }
 catch(e) {

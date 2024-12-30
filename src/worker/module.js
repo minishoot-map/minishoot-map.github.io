@@ -824,7 +824,12 @@ function onClick(x, y) {
 async function getInfo(index) {
     if(index >= 0) {
         const object = objects[index]
-        if(object) message({ type: 'getInfo', object: serializeObject(object) })
+        if(object) {
+            message({ type: 'getInfo', object: serializeObject(object) })
+        }
+        else {
+            message({ type: 'getInfoError' })
+        }
         return
     }
 
@@ -846,6 +851,9 @@ async function getInfo(index) {
         }
 
         message({ type: 'getSceneInfo', scene: { referenceInfos, children, name: s.name, index } })
+    }
+    else {
+        message({ type: 'getInfoError' })
     }
 }
 

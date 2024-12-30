@@ -91,6 +91,7 @@ export default {
     loading: ['Loading...', 'Загружается...'],
     loading_object_info: ['Loading object information...', 'Информация об объекте загружается...'],
     loading_error: ['Loading error', 'Ошибка загрузки'],
+    object_error: ['Error while loading information', 'Ошибка получения информации'],
 
     no: ['no', 'нет'],
     yes: ['yes', 'да'],

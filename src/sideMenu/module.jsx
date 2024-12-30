@@ -6,15 +6,11 @@ import { meta, parsedSchema } from '/schema.js'
 import haveTransitions from '../haveTransitions'
 
 const useCurrentObject = Z.create((set) => ({
-    loading: false,
     data: {},
     tick: 0,
     update(newData) {
-        set((cur) => ({ loading: false, data: newData, tick: cur.tick + 1 }))
+        set((cur) => ({ data: newData, tick: cur.tick + 1 }))
     },
-    setLoading() {
-        set((cur) => ({ loading: true, tick: cur.tick + 1 }))
-    }
 }))
 
 var context
@@ -34,10 +30,6 @@ export function setup(_context) {
 
     const root2 = reactDom.createRoot(document.querySelector('.filter-menu'))
     root2.render(<R.StrictMode><FilterMenu/></R.StrictMode>)
-}
-
-export function setCurrentObjectLoading() {
-    useCurrentObject.getState().setLoading()
 }
 
 export function setCurrentObject(obj) {
@@ -189,7 +181,7 @@ function FilterMenu() {
 
 function ObjectMenu() {
     const obj = useCurrentObject()
-    if(obj.loading) {
+    if(obj.data?.loading) {
         return <div key={obj.tick}>{$t.loading_object_info}</div>
     }
     else if(obj.data?.scene != null) {
@@ -197,13 +189,15 @@ function ObjectMenu() {
             <Scene scene={obj.data.scene}/>
         </div>
     }
-    else {
+    else if(obj.data?.first != null) {
         return <div key={obj.tick}>
             <Object first={obj.data?.first}/>
             <div className="space"></div>
             <Other nearby={obj.data?.nearby} nearbyReferenceInfos={obj.data?.nearbyReferenceInfos}/>
         </div>
     }
+
+    return <div key={obj.tick}>{$t.object_error}</div>
 }
 
 function vec2s(v) {
