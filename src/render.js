@@ -96,6 +96,7 @@ if(__worker) {
             const it = { markersIndices: d.markersIndices }
             markersDisplay.setFiltered(context, it)
             specMarkerDisplay.setFiltered(context, it)
+            context.filterPresets.fromWorker = d.selected
         }
     }
     worker.postMessage({ type: 'ready' })
@@ -145,8 +146,11 @@ function render(context) {
 
     // 0.5 rem at scale 1 (because space is -1 to 1 and not 0 to 1)
     const rem05 = context.sizes.fontSize / context.sizes.heightCssPx
+
+    const fs = context.filterPresets
+    const markerScale = (fs.cur[fs.fromWorker]?.markerScale ?? 1) * 1.3
     // radius
-    b[4] = Math.min(context.camera.scale, 200 * sizeFac) * rem05 * 1.3
+    b[4] = Math.min(context.camera.scale, 200 * sizeFac) * rem05 * markerScale
 
     gl.bindBuffer(gl.UNIFORM_BUFFER, context.cameraUbo)
     gl.bufferSubData(gl.UNIFORM_BUFFER, 0, b)
@@ -462,9 +466,19 @@ const context = {
     camera: { posX: 0, posY: 33, scale: 10 },
     canvasSize: [],
     filterPresets: {
+        fromWorker: 'custom',
         selected: 'custom',
         cur: {
             custom: filtersCustom,
+            energy: { markerScale: 1.5 },
+            dungeon: { markerScale: 1.5 },
+            hp: { markerScale: 1.5 },
+            map: { markerScale: 1.5 },
+            modules: { markerScale: 1.5 },
+            raceSpirits: { markerScale: 1.5 },
+            redCoins: { markerScale: 1 },
+            scarabs: { markerScale: 2 },
+            temple: { markerScale: 1.5 },
         },
         last: {
             selected: 'custom',

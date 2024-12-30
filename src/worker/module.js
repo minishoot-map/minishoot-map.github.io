@@ -929,7 +929,7 @@ function calcMarkerFilters(name, filters) {
         filteredIndices = []
     }
 
-    message({ type: 'marker-filters', markersIndices: filteredIndices })
+    message({ type: 'marker-filters', selected: name, markersIndices: filteredIndices })
 
     filteredMarkersIndices = filteredIndices
     filteredMarkersIndices.includeRest = filters.includeRest
