@@ -196,8 +196,12 @@ function ObjectMenu() {
             <Other nearby={obj.data?.nearby} nearbyReferenceInfos={obj.data?.nearbyReferenceInfos}/>
         </div>
     }
-
-    return <div key={obj.tick}>{$t.object_error}</div>
+    else if(obj.data?.error) {
+        return <div key={obj.tick}>{$t.object_error}</div>
+    }
+    else {
+        return <div>{$t.no_selected}</div>
+    }
 }
 
 function vec2s(v) {
@@ -225,10 +229,6 @@ function Scene({ scene }) {
 
 function Object({ first }) {
     const [status, setStatus] = R.useState(null)
-
-    if(first == null) {
-        return <div>{$t.no_selected}</div>
-    }
 
     const components = []
     for(let i = 0; i < first.components.length; i++) {
