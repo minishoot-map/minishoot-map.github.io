@@ -391,10 +391,10 @@ function checkEquality(a, b) {
 function extractColliderFilters(filters) {
     const res = []
 
-    if(!filters[2][2]) {
+    if(!filters[2]) {
     }
-    else if(filters[2][4][0][2]) {
-        const ff = filters[2][4][0][4]
+    else if(filters[4][0][2]) {
+        const ff = filters[4][0][4]
         for(let i = 0; i < ff.length; i++) {
             const f = ff[i]
             if(f[2]) res.push(f[0])
@@ -425,6 +425,7 @@ function sendFiltersUpdate(context) {
                     || !checkEquality(filters, last.value)
                     || filters.includeRest !== last.value.includeRest
             ) {
+                cur[sel].includeRest = filters.includeRest
                 send = filters
             }
             last.value = filters
