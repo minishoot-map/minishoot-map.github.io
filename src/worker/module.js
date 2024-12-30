@@ -3,6 +3,7 @@ import * as Load from '../load.js'
 import markersData from '$/markers.json'
 import markersMeta from '$/markers-meta.json'
 import { meta, getAsSchema, parsedSchema, stepsToBase, getBase } from '../schema.js'
+import haveTransitions from '../haveTransitions'
 
 const onClickCompletable = {
     haveMarkers: false,
@@ -849,6 +850,26 @@ async function getInfo(index) {
     }
 }
 
+const filtersForType = {
+    raceSpirits: [{ [ti.NpcTiny]: [] }],
+    redCoins: [
+        { [ti.Jar]: [ [ 'dropType', [ 3, 6 ] ] ], [ti.Enemy]: [ [ 'size', [ 3 ] ] ] },
+        { [ti.Boss]: true },
+    ],
+    hp: [{ [ti.StatsPickup]: [['statsId', [11]]] }],
+    energy: [{ [ti.StatsPickup]: [['statsId', [8]]] }],
+    scarabs: [{ [ti.ScarabPickup]: [] }],
+    modules: [{
+        [ti.StatsPickup]: [['statsId', [
+            0, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15
+        ]]],
+        [ti.ModulePickup]: [],
+        [ti.SkillPickup]: [],
+    }],
+    map:[{ [ti.MapPickup]: [], [ti.LorePickup]: [] }],
+}
+const compressedNames = [...Object.keys(filtersForType)]
+
 function calcMarkerFilters(name, filters) {
     console.log(JSON.stringify(name), filters)
     let filteredIndices
@@ -860,43 +881,14 @@ function calcMarkerFilters(name, filters) {
 
         filteredIndices = customFilters(fs)
     }
-    else if(name == 'raceSpirits') {
-        const fs = { [ti.NpcTiny]: [] }
-        filteredIndices = customFilters(fs)
-    }
-    else if(name == 'redCoins') {
-        const fs = {
-            [ti.Jar]: [['dropType', [3, 6]]],
-            [ti.Enemy]: [['size', [3]]],
+    else if(filtersForType[name] != null) {
+        const f = filtersForType[name]
+        let fs = f[0]
+        const es = f[1]
+        if(filters.transitions) {
+            fs = { ...fs, [ti.Transition]: [] }
         }
-        const es = { [ti.Boss]: true }
         filteredIndices = customFilters(fs, es)
-    }
-    else if(name == 'hp') {
-        const fs = { [ti.StatsPickup]: [['statsId', [11]]] }
-        filteredIndices = customFilters(fs)
-    }
-    else if(name == 'energy') {
-        const fs = { [ti.StatsPickup]: [['statsId', [8]]] }
-        filteredIndices = customFilters(fs)
-    }
-    else if(name == 'scarabs') {
-        const fs = { [ti.ScarabPickup]: [] }
-        filteredIndices = customFilters(fs)
-    }
-    else if(name == 'modules') {
-        const fs = {
-            [ti.StatsPickup]: [['statsId', [
-                0, 2, 3, 4, 6, 7, 9, 10, 12, 13, 14, 15
-            ]]],
-            [ti.ModulePickup]: [],
-            [ti.SkillPickup]: [],
-        }
-        filteredIndices = customFilters(fs)
-    }
-    else if(name == 'map') {
-        const fs = { [ti.MapPickup]: [], [ti.LorePickup]: [] }
-        filteredIndices = customFilters(fs)
     }
     else if(name == 'dungeon') {
         filteredIndices = findNames([

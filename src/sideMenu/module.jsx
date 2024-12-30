@@ -3,6 +3,7 @@ import * as R from 'react'
 import reactDom from 'react-dom/client'
 import * as Z from 'zustand'
 import { meta, parsedSchema } from '/schema.js'
+import haveTransitions from '../haveTransitions'
 
 const useCurrentObject = Z.create((set) => ({
     data: {},
@@ -118,12 +119,24 @@ function Filter({ filter }) {
 }
 
 function Presets() {
-    const s = context.filterPresets.selected
+    const fp = context.filterPresets
+    const s = fp.selected
     if(s === 'custom') {
-        const fp = context.filterPresets
         return <div key={s} className="presets">
             <Filter key={0} filter={fp.cur[s][0]}/>
             <Filter key={1} filter={fp.cur[s][1]}/>
+        </div>
+    }
+    else if(haveTransitions.includes(s)) {
+        function onchange(e) {
+            fp.cur[s].transitions = e.target.checked
+            context.filtersUpdated()
+        }
+        return <div key={s} className="presets">
+            <div className='filter'>
+                <label><input type='checkbox' checked={fp.cur[s].transitions}
+                    onChange={onchange}/>{$t.transition}</label>
+            </div>
         </div>
     }
     else if(s === 'raceSpirits' || s === 'redCoins') {
@@ -146,7 +159,7 @@ function PresetSelector() {
             <option value="energy">⚡ {$t.preset_energy}</option>
             <option value="hp">💙 {$t.preset_hp}</option>
             <option value="map">🗺️ {$t.preset_map}</option>
-            <option value="modules">🛠️ {$t.preset_modules}</option>
+            <option value="modules">🧊 {$t.preset_modules}</option>
             <option value="raceSpirits">🏁 {$t.preset_raceSpirits}</option>
             <option value="redCoins">🔴 {$t.preset_redCoins}</option>
             <option value="scarabs">🪲 {$t.preset_scarabs}</option>

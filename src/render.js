@@ -420,24 +420,27 @@ function sendFiltersUpdate(context) {
         if(sel == 'custom') {
             const filters = extractMarkerFilters(cur[sel])
             filters.includeRest = cur[sel][1][2]
+            cur[sel].includeRest = filters.includeRest
             if(
                 last.selected !== sel
                     || !checkEquality(filters, last.value)
                     || filters.includeRest !== last.value.includeRest
             ) {
-                cur[sel].includeRest = filters.includeRest
                 send = filters
             }
-            last.value = filters
         }
-        else if(last.selected !== sel) {
-            send = {}
+        else {
+            const f = { transitions: cur[sel]?.transitions }
+            if(last.selected !== sel || last.value.transitions !== f.transitions) {
+                send = f
+            }
         }
 
         last.selected = sel
 
         try {
             if(send != null) {
+                last.value = send
                 worker.postMessage({ type: 'filters', selected: sel, filters: send })
             }
         }
@@ -471,15 +474,15 @@ const context = {
         selected: 'custom',
         cur: {
             custom: filtersCustom,
-            energy: { markerScale: 1.5 },
+            energy: { transitions: false, markerScale: 1.5 },
             dungeon: { markerScale: 1.5 },
-            hp: { markerScale: 1.5 },
-            map: { markerScale: 1.5 },
-            modules: { markerScale: 1.5 },
-            raceSpirits: { markerScale: 1.5 },
-            redCoins: { markerScale: 1 },
-            scarabs: { markerScale: 2 },
-            temple: { markerScale: 1.5 },
+            hp: { transitions: false, markerScale: 1.5 },
+            map: { transitions: false, markerScale: 1.5 },
+            modules: { transitions: false, markerScale: 1.5 },
+            raceSpirits: { transitions: false, markerScale: 1.5 },
+            redCoins: { transitions: false, markerScale: 1 },
+            scarabs: { transitions: false, markerScale: 2 },
+            temples: { markerScale: 1.5 },
         },
         last: {
             selected: 'custom',
