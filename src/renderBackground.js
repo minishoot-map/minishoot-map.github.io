@@ -213,15 +213,19 @@ async function downloadBackgrounds(context) {
 
     var index = 0
     // duplicate from load.js
+    const int_max = 2 ** 31 - 1
     function parseCompressedInt() {
         var res = 0
         var i = 0
         do {
             var cur = header[index++]
-            res = res + (cur << (i*7))
+            res = res + ((cur << (i*7)) | 0) | 0
             i++
         } while(cur & 0b1000_0000)
-        return res
+        if(res < 0) {
+            res = int_max - res | 0
+        }
+        return res | 0
     }
 
     const texturesC = parseCompressedInt()

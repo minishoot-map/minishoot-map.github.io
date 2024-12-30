@@ -1,14 +1,18 @@
 var primIParsers, index, array, schemas
 var stringMap
 
+const int_max = 2 ** 31 - 1
 function parseCompressedInt() {
     var res = 0
     var i = 0
     do {
         var cur = pop()
-        res = res + (cur << (i*7))
+        res = res + ((cur << (i*7)) | 0) | 0
         i++
     } while(cur & 0b1000_0000)
+    if(res < 0) {
+        res = int_max - res | 0
+    }
     return res
 }
 
