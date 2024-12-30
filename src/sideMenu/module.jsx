@@ -139,18 +139,18 @@ function PresetSelector() {
         context.filtersUpdated()
     }
     return <label className="preset-selector">
-        <span>Preset:</span>
+        <span>{$t.preset}:</span>
         <select name="options" value={context.filterPresets.selected} onChange={changed}>
-            <option value="custom">⚙ Custom</option>
-            <option value="dungeon">💀 Dungeon entrances</option>
-            <option value="energy">⚡ Energy upgrades</option>
-            <option value="hp">💙 Heart crystals</option>
-            <option value="map">🗺️ Map & Lore fragments</option>
-            <option value="modules">🛠️ Modules & Skills</option>
-            <option value="raceSpirits">🏁 Race spirits</option>
-            <option value="redCoins">🔴 Red coins (Big crystals)</option>
-            <option value="scarabs">🪲 Scarabs</option>
-            <option value="temples">🏛️ Temple & Tower entrances</option>
+            <option value="custom">⚙ {$t.preset_custom}</option>
+            <option value="dungeon">💀 {$t.preset_dungeon}</option>
+            <option value="energy">⚡ {$t.preset_energy}</option>
+            <option value="hp">💙 {$t.preset_hp}</option>
+            <option value="map">🗺️ {$t.preset_map}</option>
+            <option value="modules">🛠️ {$t.preset_modules}</option>
+            <option value="raceSpirits">🏁 {$t.preset_raceSpirits}</option>
+            <option value="redCoins">🔴 {$t.preset_redCoins}</option>
+            <option value="scarabs">🪲 {$t.preset_scarabs}</option>
+            <option value="temples">🏛️ {$t.preset_temples}</option>
         </select>
     </label>
 }

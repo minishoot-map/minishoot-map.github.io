@@ -127,4 +127,16 @@ export default {
     away: ['away', 'в'],
     objnear: ['Objects nearby', 'Объекты поблизости'],
     m: ['m', 'м'],
+
+    preset: ['Preset', 'Пресет'],
+    preset_custom: ["Custom", "Пользовательский"],
+    preset_dungeon: ["Dungeon entrances", "Входы в подземелья"],
+    preset_energy: ["Energy upgrades", "Улучшения энергии"],
+    preset_hp: ["Heart crystals", "Кристаллы HP"],
+    preset_map: ["Map & Lore fragments", "Фрагменты карты и лора"],
+    preset_modules: ["Modules & Skills", "Модули и навыки"],
+    preset_raceSpirits: ["Race spirits", "Гонки"],
+    preset_redCoins: ["Red coins (Big crystals)", "Красные монеты"],
+    preset_scarabs: ["Scarabs", "Скарабеи"],
+    preset_temples: ["Temple & Tower entrances", "Входы в храмы и башни"],
 } as const
