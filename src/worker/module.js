@@ -3,7 +3,6 @@ import * as Load from '../load.js'
 import markersData from '$/markers.json'
 import markersMeta from '$/markers-meta.json'
 import { meta, getAsSchema, parsedSchema, stepsToBase, getBase } from '../schema.js'
-import haveTransitions from '../haveTransitions'
 
 const onClickCompletable = {
     haveMarkers: false,

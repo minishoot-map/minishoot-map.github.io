@@ -597,6 +597,7 @@ try {
     }
     if(isFinite(obji)) {
         worker?.postMessage({ type: 'getInfo', index: obji })
+        sideMenu.setCurrentObjectLoading()
     }
 }
 catch(e) {

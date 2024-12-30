@@ -6,11 +6,15 @@ import { meta, parsedSchema } from '/schema.js'
 import haveTransitions from '../haveTransitions'
 
 const useCurrentObject = Z.create((set) => ({
+    loading: false,
     data: {},
     tick: 0,
     update(newData) {
-        set((cur) => ({ data: newData, tick: cur.tick + 1 }))
+        set((cur) => ({ loading: false, data: newData, tick: cur.tick + 1 }))
     },
+    setLoading() {
+        set((cur) => ({ loading: true, tick: cur.tick + 1 }))
+    }
 }))
 
 var context
@@ -30,6 +34,10 @@ export function setup(_context) {
 
     const root2 = reactDom.createRoot(document.querySelector('.filter-menu'))
     root2.render(<R.StrictMode><FilterMenu/></R.StrictMode>)
+}
+
+export function setCurrentObjectLoading() {
+    useCurrentObject.getState().setLoading()
 }
 
 export function setCurrentObject(obj) {
@@ -181,7 +189,10 @@ function FilterMenu() {
 
 function ObjectMenu() {
     const obj = useCurrentObject()
-    if(obj.data?.scene != null) {
+    if(obj.loading) {
+        return <div key={obj.tick}>{$t.loading_object_info}</div>
+    }
+    else if(obj.data?.scene != null) {
         return <div key={obj.tick}>
             <Scene scene={obj.data.scene}/>
         </div>
@@ -480,7 +491,7 @@ ac(ti.ScarabPickup, (c, o) => {
 
 ac(ti.Transition, (c, o) => {
     return <Props>
-        <Prop>Destination:{<Link index={c.destI} obj={o}/>}</Prop>
+        <Prop>{$t.dest + ':'}{<Link index={c.destI} obj={o}/>}</Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -496,9 +507,9 @@ ac(ti.Unlocker, (c, o) => {
 
     return <Props>
         <Prop>KeyUse:{keyUses[c.keyUse] ?? '<Unknown>'}</Prop>
-        <Prop>Target:<Link index={c.target} obj={o}/></Prop>
+        <Prop>{$t.target + ':'}<Link index={c.target} obj={o}/></Prop>
         <Prop>Target bis (?):<Link index={c.targetBis} obj={o}/></Prop>
-        <Prop>Group:<Props>{gc}</Props></Prop>
+        <Prop>{$t.group + ':'}<Props>{gc}</Props></Prop>
         <Component comp={c._base} obj={o}/>
     </Props>
 })

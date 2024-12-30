@@ -89,6 +89,7 @@ export default {
     background: ['Backgrounds', 'Фоны'],
 
     loading: ['Loading...', 'Загружается...'],
+    loading_object_info: ['Loading object information...', 'Информация об объекте загружается...'],
     loading_error: ['Loading error', 'Ошибка загрузки'],
 
     no: ['no', 'нет'],
@@ -98,7 +99,7 @@ export default {
     children: ['Children', 'Дочерние объекты'],
     parents: ['Parents', 'Родительские объекты'],
     no_selected: ['No object selected', 'Объект не выбран'],
-    focus: ['Focus', 'Показать'],
+    focus: ['Center on item', 'Показать'],
     copyurl: ['Copy URL', 'Скопировать URL'],
     position: ['Position', 'Позиция'],
     components: ['Components', 'Компоненты'],
