@@ -906,6 +906,9 @@ function calcMarkerFilters(name, filters) {
             'Overworld > Dungeon3_0',
             'Overworld > Dungeon4_0',
             'Overworld > Dungeon5_0',
+
+            'Overworld > Cave_47',
+            'Cave > Overworld_47',
         ])
     }
     else if(name == 'temples') {
