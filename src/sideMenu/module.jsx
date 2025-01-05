@@ -135,7 +135,7 @@ function Presets() {
         return <div key={s} className="presets">
             <div className='filter'>
                 <label><input type='checkbox' checked={fp.cur[s].transitions}
-                    onChange={onchange}/>{$t.transition}</label>
+                    onChange={onchange}/>{$t.transitions_all}</label>
             </div>
         </div>
     }

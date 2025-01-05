@@ -858,7 +858,6 @@ async function getInfo(index) {
 }
 
 const filtersForType = {
-    raceSpirits: [{ [ti.NpcTiny]: [] }],
     redCoins: [
         { [ti.Jar]: [ [ 'dropType', [ 3, 6 ] ] ], [ti.Enemy]: [ [ 'size', [ 3 ] ] ] },
         { [ti.Boss]: true },
@@ -896,6 +895,9 @@ function calcMarkerFilters(name, filters) {
             fs = { ...fs, [ti.Transition]: [] }
         }
         filteredIndices = customFilters(fs, es)
+    }
+    else if(name == 'raceSpirits') {
+        filteredIndices = findRaceSpirits(filters.transitions)
     }
     else if(name == 'dungeon') {
         filteredIndices = findNames([
@@ -973,11 +975,70 @@ function customFilters(filters, excludes) {
 function findNames(names) {
     const filteredIndices = Array(names.length)
     filteredIndices.length = 0
-    for(let i = 0; i < allMarkersInfo.length; i++) { 
+    for(let i = 0; i < allMarkersInfo.length; i++) {
         const marker = allMarkersInfo[i]
         const obj = marker.object
         if(!names.includes(obj.name)) continue
         filteredIndices.push(i)
     }
     return filteredIndices
+}
+
+function findRaceSpirits(transitions) {
+    const filter1 = ti.NpcTiny
+    const filter2 = ti.Transition
+    const names = [
+        "CaveExtra > Cave_0",
+        "Cave > CaveExtra_0",
+        // second door from ^
+        "Cave > Overworld_41",
+        "Overworld > Cave_41",
+
+        "CaveExtra > Overworld_1",
+        "Overworld > CaveExtra_1",
+
+        "CaveExtra > Overworld_2",
+        "Overworld > CaveExtra_2",
+
+        "CaveExtra > Overworld_3",
+        "Overworld > CaveExtra_3",
+
+        "CaveExtra > Overworld_4",
+        "Overworld > CaveExtra_4",
+
+        "CaveExtra > Overworld_5",
+        "Overworld > CaveExtra_5",
+
+        "Cave > Overworld_9",
+        "Overworld > Cave_9",
+
+        "Cave > Tower_0",
+        "Tower > Cave_0",
+        // second door from ^
+        "Tower > Overworld_4",
+        "Overworld > Tower_4",
+    ]
+
+    const filteredIndices = Array(50)
+    filteredIndices.length = 0
+
+    for(let i = 0; i < allMarkersInfo.length; i++) {
+        const marker = allMarkersInfo[i];
+        const comp = marker.component
+        const obj = marker.object
+        if(comp._schema === filter1) {
+            filteredIndices.push(i)
+        }
+        else if(comp._schema === filter2) {
+            if(transitions) {
+                filteredIndices.push(i)
+            }
+            else if(names.includes(obj.name)) {
+                filteredIndices.push(i)
+            }
+        }
+    }
+
+    return filteredIndices
+
 }

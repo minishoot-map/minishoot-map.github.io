@@ -83,6 +83,7 @@ export default {
     crystal: ['Crystals', 'Кристаллы'],
     filter_by_xp: ['Filter by xp drop', 'Отфильтровать по наличию опыта'],
     transition: ['Entrances', 'Входы'],
+    transitions_all: ['All Entrances', 'Все входы'],
     tunnel: ['Tunnels', 'Туннели'],
     torch: ['Torches', 'Факела'],
     other: ['All other objects (a lot!)', 'Все остальные объекты (много!)'],
