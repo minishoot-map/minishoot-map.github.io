@@ -2,14 +2,14 @@
 
 const p1 = 'minishoot adventures '
 const add = [
-    'map', 'module', 'pickup', 'race spirit', 'health crystal', 'upgrage',
-    'red coin', 'bosses', 'map fragment', 'lore fragment', 'key', 'dungeon',
-    'temple', 'npc', 'enemy', 'scarab', 'jar'
+    'map', 'modules', 'pickup', 'race spirits', 'races', 'health crystals', 'upgrages',
+    'red coins', 'bosses', 'map fragments', 'lore fragments', 'keys', 'dungeons',
+    'temples', 'npc', 'enemies', 'scarabs', 'jars'
 ]
 const add_ru = [
-    'карта', 'модуль', 'pickup', 'гонки', 'кристалл здоровья', 'улучшение',
-    'красная монета', 'боссы', 'фрагмент карты', 'фрагмент лора', 'ключ', 'подземелье',
-    'храм', 'нпс', 'враг', 'скарабей', 'кувшин'
+    'карты', 'модули', 'pickup', 'гонки', 'кристаллы здоровья', 'улучшения',
+    'красные монеты', 'боссы', 'фрагменты карты', 'фрагменты лора', 'ключи', 'подземелья',
+    'храмы', 'нпс', 'враги', 'скарабеи', 'кувшины'
 ]
 let result = add.map(it => p1 + it).join(', ')
 let result_ru = add_ru.map(it => p1 + it).join(', ')
