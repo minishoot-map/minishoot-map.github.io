@@ -72,24 +72,30 @@ export function onmessage(it) {
 
 const ti = parsedSchema.typeSchemaI
 
+var matrixArr
+var matrixEndI = 0
+
 var deg2rad = (Math.PI / 180)
 // Note: rotation is counter-clockwise in both Unity and css (right?)
 function construct(t) {
     var sin = Math.sin(t.rotation * deg2rad)
     var cos = Math.cos(t.rotation * deg2rad)
-    var matrix = new Float32Array(6)
-    matrix[0] = cos * t.scale[0]
-    matrix[1] = -sin * t.scale[1]
-    matrix[2] = t.position[0]
-    matrix[3] = sin * t.scale[0]
-    matrix[4] = cos * t.scale[1]
-    matrix[5] = t.position[1]
-    return matrix
+
+    const i = matrixEndI
+    matrixArr[i + 0] = cos * t.scale[0]
+    matrixArr[i + 1] = -sin * t.scale[1]
+    matrixArr[i + 2] = t.position[0]
+    matrixArr[i + 3] = sin * t.scale[0]
+    matrixArr[i + 4] = cos * t.scale[1]
+    matrixArr[i + 5] = t.position[1]
+    matrixEndI += 6
+
+    return i
 }
 
 var scenes
 var objects = []
-function prepareObjects(parentMatrix, parentI, obj) {
+function prepareObjects(parentMatrixI, parentI, obj) {
     var transform
     for(let i = 0; i < obj.components.length && transform == null; i++) {
         transform = getAsSchema(obj.components[i], parsedSchema.typeSchemaI.Transform)
@@ -102,28 +108,34 @@ function prepareObjects(parentMatrix, parentI, obj) {
     objects.push(obj)
     obj._index = index
 
-    var matrix = construct(transform)
-    if(parentMatrix) premultiplyBy(matrix, parentMatrix)
-    obj.matrix = matrix
-    obj.pos = [matrix[2], matrix[5]]
+    var matrixI = construct(transform)
+    if(parentMatrixI) premultiplyBy(matrixArr, matrixI, matrixArr, parentMatrixI)
+    obj.matrixI = matrixI
+    obj.pos = [matrixArr[matrixI + 2], matrixArr[matrixI + 5]]
 
-    obj.children.forEach(c => prepareObjects(matrix, index, c))
+    obj.children.forEach(c => prepareObjects(matrixI, index, c))
 }
 
-function premultiplyBy(n, m) {
-    var a = m[0] * n[0] + m[1] * n[3]
-    var b = m[0] * n[1] + m[1] * n[4]
-    var c = m[0] * n[2] + m[1] * n[5] + m[2]
-    var d = m[3] * n[0] + m[4] * n[3]
-    var e = m[3] * n[1] + m[4] * n[4]
-    var f = m[3] * n[2] + m[4] * n[5] + m[5]
+/**
+    @param {Float32Array} n
+    @param {number} ni
+    @param {Float32Array} m
+    @param {number} mi
+*/
+function premultiplyBy(n, ni, m, mi) {
+    var a = m[mi + 0] * n[ni + 0] + m[mi + 1] * n[ni + 3]
+    var b = m[mi + 0] * n[ni + 1] + m[mi + 1] * n[ni + 4]
+    var c = m[mi + 0] * n[ni + 2] + m[mi + 1] * n[ni + 5] + m[mi + 2]
+    var d = m[mi + 3] * n[ni + 0] + m[mi + 4] * n[ni + 3]
+    var e = m[mi + 3] * n[ni + 1] + m[mi + 4] * n[ni + 4]
+    var f = m[mi + 3] * n[ni + 2] + m[mi + 4] * n[ni + 5] + m[mi + 5]
 
-    n[0] = a
-    n[1] = b
-    n[2] = c
-    n[3] = d
-    n[4] = e
-    n[5] = f
+    n[ni + 0] = a
+    n[ni + 1] = b
+    n[ni + 2] = c
+    n[ni + 3] = d
+    n[ni + 4] = e
+    n[ni + 5] = f
 
     return n
 }
@@ -131,7 +143,10 @@ function premultiplyBy(n, m) {
 const objectsLoadedP = objectsP.then(objectsA => {
     const s = performance.now()
     scenes = Load.parse(parsedSchema, objectsA)
+    const objectCount = Load.getLastCounts()[ti.GameObject]
     const e1 = performance.now()
+
+    matrixArr = new Float32Array(objectCount * 6)
 
     for(let i = 0; i < scenes.length; i++) {
         const roots = scenes[i].roots
@@ -526,7 +541,7 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
             const startVertexI = vertI
 
             const data = datas[j]
-            const m = data[0].matrix
+            const mI = data[0].matrixI
             const coll = data[1]
             const off = getAsSchema(coll, ti.Collider2D).offset
 
@@ -535,8 +550,15 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
                 for(let k = 0; k < poly.points.length; k++) {
                     const x = poly.points[k][0] + off[0]
                     const y = poly.points[k][1] + off[1]
-                    verts[vertI*2    ] = x * m[0] + y * m[1] + m[2]
-                    verts[vertI*2 + 1] = x * m[3] + y * m[4] + m[5]
+                    verts[vertI*2    ]
+                        = x * matrixArr[mI + 0]
+                        + y * matrixArr[mI + 1]
+                        + matrixArr[mI + 2]
+
+                    verts[vertI*2 + 1]
+                        = x * matrixArr[mI + 3]
+                        + y * matrixArr[mI + 4]
+                        + matrixArr[mI + 5]
                     vertI++
                 }
                 for(let k = 0; k < poly.indices.length; k++) {
@@ -548,8 +570,16 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
                 for(let k = 0; k < poly.points.length; k++) {
                     const x = poly.points[k][0] + off[0]
                     const y = poly.points[k][1] + off[1]
-                    verts[vertI*2    ] = x * m[0] + y * m[1] + m[2]
-                    verts[vertI*2 + 1] = x * m[3] + y * m[4] + m[5]
+                    verts[vertI*2    ]
+                        = x * matrixArr[mI + 0]
+                        + y * matrixArr[mI + 1]
+                        + matrixArr[mI + 2]
+
+                    verts[vertI*2 + 1]
+                        = x * matrixArr[mI + 3]
+                        + y * matrixArr[mI + 4]
+                        + matrixArr[mI + 5]
+
                     vertI++
                 }
                 for(let k = 0; k < poly.indices.length; k++) {
@@ -561,8 +591,16 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
                 for(let k = 0; k < boxPoints.length; k++) {
                     const x = boxPoints[k][0] * size[0] + off[0]
                     const y = boxPoints[k][1] * size[1] + off[1]
-                    verts[vertI*2    ] = x * m[0] + y * m[1] + m[2]
-                    verts[vertI*2 + 1] = x * m[3] + y * m[4] + m[5]
+                    verts[vertI*2    ]
+                        = x * matrixArr[mI + 0]
+                        + y * matrixArr[mI + 1]
+                        + matrixArr[mI + 2]
+
+                    verts[vertI*2 + 1]
+                        = x * matrixArr[mI + 3]
+                        + y * matrixArr[mI + 4]
+                        + matrixArr[mI + 5]
+
                     vertI++
                 }
                 indices[indexI++] = startVertexI + 0
@@ -579,8 +617,10 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
 
     // we need to send the whole 2x3 matrix + the bigger size of the capsule collider
     const cirSize = 28
+    const cirSizeF = 7  // in float32
     const circularData = new ArrayBuffer(cirSize * totalCircularC)
-    const cirdv = new DataView(circularData)
+    const arr = new Float32Array(circularData)
+
     const circularDrawData = []
     var circI = 0
     for(let i = 0; i < circularDrawDataByLayer.length; i++) {
@@ -590,38 +630,38 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
         if(cdd.length === 0) continue
         for(let j = 0; j < cdd.length; j++) {
             const data = cdd[j]
-            const m = data[0].matrix
+            const mI = data[0].matrixI
             const coll = data[1]
             const off = getAsSchema(coll, ti.Collider2D).offset
 
+            const arrOff = circI * cirSizeF
+
             if(coll._schema === ti.CircleCollider2D) {
-                const newM = new Float32Array(circularData, circI * cirSize, 6)
-                newM[0] = coll.radius * 2
-                newM[2] = off[0]
-                newM[4] = coll.radius * 2
-                newM[5] = off[1]
-                cirdv.setFloat32(circI * cirSize + 24, 1, true)
-                premultiplyBy(newM, m)
+                arr[arrOff + 0] = coll.radius * 2
+                arr[arrOff + 2] = off[0]
+                arr[arrOff + 4] = coll.radius * 2
+                arr[arrOff + 5] = off[1]
+                arr[arrOff + 6] = 1
+                premultiplyBy(arr, arrOff, matrixArr, mI)
                 circI++
             }
             else if(coll._schema === ti.CapsuleCollider2D) {
                 const size = coll.size
-                const newM = new Float32Array(circularData, circI * cirSize, 6)
                 if(coll.size[0] > coll.size[1]) {
-                    newM[0] = coll.size[0]
-                    newM[2] = off[0]
-                    newM[4] = coll.size[1]
-                    newM[5] = off[1]
-                    cirdv.setFloat32(circI * cirSize + 24, size[0] / size[1], true)
+                    arr[arrOff + 0] = coll.size[0]
+                    arr[arrOff + 2] = off[0]
+                    arr[arrOff + 4] = coll.size[1]
+                    arr[arrOff + 5] = off[1]
+                    arr[arrOff + 6] = size[0] / size[1]
                 }
                 else { // rotate 90 degrees because the shader expects width > height
-                    newM[1] = -coll.size[0]
-                    newM[2] = off[0]
-                    newM[3] = coll.size[1]
-                    newM[5] = off[1]
-                    cirdv.setFloat32(circI * cirSize + 24, size[1] / size[0], true)
+                    arr[arrOff + 1] = -coll.size[0]
+                    arr[arrOff + 2] = off[0]
+                    arr[arrOff + 3] = coll.size[1]
+                    arr[arrOff + 5] = off[1]
+                    arr[arrOff + 6] = size[1] / size[0]
                 }
-                premultiplyBy(newM, m)
+                premultiplyBy(arr, arrOff, matrixArr, mI)
                 circI++
             }
         }

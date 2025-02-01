@@ -1,4 +1,5 @@
 var primIParsers, index, array, schemas, terminals
+var counts
 var stringMap
 
 const int_max = 2 ** 31 - 1
@@ -91,6 +92,8 @@ function parseBySchema(schemaI) {
 }
 
 function parseRecord(schemaI) {
+    counts[schemaI]++
+
     const term = terminals[schemaI]
     if(term !== null) return term
 
@@ -216,10 +219,16 @@ export function parse(parsedSchema, objectsUint8Array) {
     schemas = parsedSchema.schema
     terminals = parsedSchema.terminals
     stringMap = []
+    counts = []
+    for(let i = 0; i < parsedSchema.schema.length; i++) counts[i] = 0
 
     for(const key in primParsers) {
         primIParsers[parsedSchema.typeSchemaI[key]] = primParsers[key]
     }
 
     return parseAny()
+}
+
+export function getLastCounts() {
+    return counts
 }
