@@ -922,6 +922,32 @@ const filtersForType = {
     map:[{ [ti.MapPickup]: [], [ti.LorePickup]: [] }],
 }
 
+const dungeonNames = [
+    'Overworld > Dungeon1_0',
+    'Overworld > Dungeon2_0',
+    'Overworld > Dungeon3_0',
+    'Overworld > Dungeon4_0',
+    'Overworld > Dungeon5_0',
+
+    'Overworld > Cave_47',
+    'Cave > Overworld_47',
+]
+const templeNames = [
+    'Overworld > Temple1_0',
+    'Overworld > Temple2_0',
+    'Overworld > Temple3_0',
+    'Overworld > Tower_1',
+    'Overworld > Tower_2',
+    'Overworld > Tower_3',
+    'Overworld > Tower_4',
+    'Overworld > Tower_5',
+    'Overworld > Tower_6',
+    'Overworld > Tower_7',
+    'Overworld > Tower_8',
+    'Overworld > Tower_9',
+    'Overworld > Tower_10',
+]
+
 function calcMarkerFilters(name, filters) {
     /** @type Array<number> */
     let filteredIndices
@@ -970,39 +996,20 @@ function calcMarkerFilters(name, filters) {
             fs[ti.Tunnel] = e
         }
 
-        filteredIndices = customFilters(fs)
+        filteredIndices = customFilters(
+            fs,
+            null,
+            new Set([...dungeonNames, ...templeNames])
+        )
     }
     else if(name == 'raceSpirits') {
         filteredIndices = findRaceSpirits(filters.transitions)
     }
     else if(name == 'dungeon') {
-        filteredIndices = findNames([
-            'Overworld > Dungeon1_0',
-            'Overworld > Dungeon2_0',
-            'Overworld > Dungeon3_0',
-            'Overworld > Dungeon4_0',
-            'Overworld > Dungeon5_0',
-
-            'Overworld > Cave_47',
-            'Cave > Overworld_47',
-        ])
+        filteredIndices = findNames(dungeonNames)
     }
     else if(name == 'temples') {
-        filteredIndices = findNames([
-            'Overworld > Temple1_0',
-            'Overworld > Temple2_0',
-            'Overworld > Temple3_0',
-            'Overworld > Tower_1',
-            'Overworld > Tower_2',
-            'Overworld > Tower_3',
-            'Overworld > Tower_4',
-            'Overworld > Tower_5',
-            'Overworld > Tower_6',
-            'Overworld > Tower_7',
-            'Overworld > Tower_8',
-            'Overworld > Tower_9',
-            'Overworld > Tower_10',
-        ])
+        filteredIndices = findNames(templeNames)
     }
 
     if(!filteredIndices) {
@@ -1017,7 +1024,7 @@ function calcMarkerFilters(name, filters) {
     onClickCompletable.update()
 }
 
-function customFilters(filters, excludes) {
+function customFilters(filters, excludes, filterNames) {
     /** @type Array<number> */
     const filteredIndices = Array(allMarkersInfo.length)
     filteredIndices.length = 0
@@ -1025,16 +1032,20 @@ function customFilters(filters, excludes) {
         const marker = allMarkersInfo[i];
         const comp = marker.component
         const fieldsFilter = filters[comp._schema]
-        if(!fieldsFilter) continue
 
-        let add = true
-        for(let j = 0; j < fieldsFilter.length; j++) {
-            const ff = fieldsFilter[j]
-            if(ff[1].includes(comp[ff[0]])) continue
+        let add = false
+        if(fieldsFilter) {
+            add = true
+            for(let j = 0; j < fieldsFilter.length; j++) {
+                const ff = fieldsFilter[j]
+                if(ff[1].includes(comp[ff[0]])) continue
 
-            add = false
-            break
+                add = false
+                break
+            }
         }
+
+        if(!add && filterNames && filterNames.has(marker.object.name)) add = true
 
         if(add && excludes) {
             const cs = marker.object.components
