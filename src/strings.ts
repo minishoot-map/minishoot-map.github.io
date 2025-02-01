@@ -133,6 +133,7 @@ export default {
 
     preset: ['Preset', 'Пресет'],
     preset_custom: ["Custom", "Пользовательский"],
+    preset_default: ["Default", "По умолчанию"],
     preset_dungeon: ["Dungeon entrances", "Входы в подземелья"],
     preset_energy: ["Energy upgrades", "Улучшения энергии"],
     preset_hp: ["Heart crystals", "Кристаллы HP"],

@@ -271,6 +271,7 @@ const filtersCustom = [
             ],
             ['Unlocker', 'Unlockers', true, 'filters', []],
             ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
+            ['UnlockerTorch', 'Unlocker torches', true, 'filters', []],
             ['Transition', $t.transition, true, 'filters', []],
             ['Tunnel', $t.tunnel, true, 'filters', []],
             ['Torch', $t.torch, false, 'filters', []],
@@ -476,10 +477,11 @@ const context = {
     camera: { posX: 0, posY: 33, scale: 10 },
     canvasSize: [],
     filterPresets: {
-        fromWorker: 'custom',
-        selected: 'custom',
+        fromWorker: 'default',
+        selected: 'default',
         cur: {
             custom: filtersCustom,
+            default: { transitions: false, markerScale: 1 },
             energy: { transitions: false, markerScale: 1.5 },
             dungeon: { markerScale: 1.5 },
             hp: { transitions: false, markerScale: 1.5 },
@@ -491,7 +493,7 @@ const context = {
             temples: { markerScale: 1.5 },
         },
         last: {
-            selected: 'custom',
+            selected: 'default',
             value: {},
         },
     },

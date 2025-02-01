@@ -235,6 +235,12 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
                 schemaDisplayFuncI[i] = [s, -3, si]
             }
             si++
+
+            s = stepsToBase(i, ti.UnlockerTorch)
+            if(s != null) {
+                schemaDisplayFuncI[i] = [s, -4, si]
+            }
+            si++
         }
     }
 }
@@ -900,7 +906,7 @@ async function getInfo(index) {
 
 const filtersForType = {
     redCoins: [
-        { [ti.Jar]: [ [ 'dropType', [ 3, 6 ] ] ], [ti.Enemy]: [ [ 'size', [ 3 ] ] ] },
+        { [ti.Jar]: [['dropType', [3, 6]]], [ti.Enemy]: [['size', [3]]] },
         { [ti.Boss]: true },
     ],
     hp: [{ [ti.StatsPickup]: [['statsId', [11]]] }],
@@ -935,6 +941,36 @@ function calcMarkerFilters(name, filters) {
             fs = { ...fs, [ti.Transition]: [] }
         }
         filteredIndices = customFilters(fs, es)
+    }
+    else if(name == 'default') {
+        const e = []
+        const fs = {
+            [ti.Jar]: [['dropType', [3, 6]]], [ti.Enemy]: [['size', [3]]],
+            [ti.Enemy]: [['size', [3]]],
+            [ti.Boss]: e,
+            [ti.Npc]: e,
+            [ti.Pickup]: e,
+            [ti.CrystalKey]: e,
+            [ti.BossKey]: e,
+            [ti.CrystalBoss]: e,
+            [ti.KeyUnique]: e,
+            [ti.ModulePickup]: e,
+            [ti.SkillPickup]: e,
+            [ti.StatsPickup]: e,
+            [ti.ScarabPickup]: e,
+            [ti.LorePickup]: e,
+            [ti.MapPickup]: e,
+            [ti.Unlocker]: e,
+            [ti.UnlockerTrigger]: e,
+            [ti.UnlockerTorch]: e,
+            [ti.NpcTiny]: e,
+        }
+        if(filters.transitions) {
+            fs[ti.Transition] = e
+            fs[ti.Tunnel] = e
+        }
+
+        filteredIndices = customFilters(fs)
     }
     else if(name == 'raceSpirits') {
         filteredIndices = findRaceSpirits(filters.transitions)

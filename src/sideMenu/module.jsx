@@ -154,7 +154,8 @@ function PresetSelector() {
     return <label className="preset-selector">
         <span>{$t.preset}:</span>
         <select name="options" value={context.filterPresets.selected} onChange={changed}>
-            <option value="custom">⚙ {$t.preset_custom}</option>
+            <option value="custom">✨ {$t.preset_custom}</option>
+            <option value="default">⚙ {$t.preset_default}</option>
             <option value="dungeon">💀 {$t.preset_dungeon}</option>
             <option value="energy">⚡ {$t.preset_energy}</option>
             <option value="hp">💙 {$t.preset_hp}</option>
