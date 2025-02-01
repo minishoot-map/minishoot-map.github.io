@@ -874,10 +874,8 @@ const filtersForType = {
     }],
     map:[{ [ti.MapPickup]: [], [ti.LorePickup]: [] }],
 }
-const compressedNames = [...Object.keys(filtersForType)]
 
 function calcMarkerFilters(name, filters) {
-    console.log(JSON.stringify(name), filters)
     let filteredIndices
     if(name == 'custom') {
         const fs = {}
