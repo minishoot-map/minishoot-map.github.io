@@ -904,6 +904,10 @@ async function getInfo(index) {
     }
 }
 
+/** @typedef {Array<[name: string, values: Array<any>]>} Filter */
+/** @typedef {{ [schema: number]: Filter }} Filters */
+
+/** @type {{ [preset: string]: [Filters, excludes?: { [schema: number]: true }] }} */
 const filtersForType = {
     redCoins: [
         { [ti.Jar]: [['dropType', [3, 6]]], [ti.Enemy]: [['size', [3]]] },
@@ -948,10 +952,15 @@ const templeNames = [
     'Overworld > Tower_10',
 ]
 
+/**
+    @param {string} name
+    @param {any} filters
+*/
 function calcMarkerFilters(name, filters) {
     /** @type Array<number> */
     let filteredIndices
     if(name == 'custom') {
+        /** @type {Filters} */
         const fs = {}
         for(let i = 0; i < filters.length; i++) {
             fs[ti[filters[i][0]]] = filters[i][1]
@@ -1024,6 +1033,11 @@ function calcMarkerFilters(name, filters) {
     onClickCompletable.update()
 }
 
+/**
+    @param {Filters} filters
+    @param {{ [schema: number]: true }=} excludes
+    @param {Set<string>=} filterNames
+*/
 function customFilters(filters, excludes, filterNames) {
     /** @type Array<number> */
     const filteredIndices = Array(allMarkersInfo.length)
@@ -1063,6 +1077,7 @@ function customFilters(filters, excludes, filterNames) {
     return filteredIndices
 }
 
+/** @param {string[]} names */
 function findNames(names) {
     /** @type Array<number> */
     const filteredIndices = Array(names.length)
@@ -1076,6 +1091,7 @@ function findNames(names) {
     return filteredIndices
 }
 
+/** @param {boolean} transitions */
 function findRaceSpirits(transitions) {
     const filter1 = ti.NpcTiny
     const filter2 = ti.Transition
