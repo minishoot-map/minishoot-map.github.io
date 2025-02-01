@@ -282,6 +282,7 @@ const schemaReferenceFuncI = Array(meta.schemas.length)
 var allMarkersInfo
 /** @type {object[]} */
 var restMarkersInfo
+/** @type {Array<number> & { includeRest: boolean }} */
 var filteredMarkersIndices
 
 /** @type {Promise<{
@@ -916,6 +917,7 @@ const filtersForType = {
 }
 
 function calcMarkerFilters(name, filters) {
+    /** @type Array<number> */
     let filteredIndices
     if(name == 'custom') {
         const fs = {}
@@ -973,13 +975,14 @@ function calcMarkerFilters(name, filters) {
 
     message({ type: 'marker-filters', selected: name, markersIndices: filteredIndices })
 
-    filteredMarkersIndices = filteredIndices
+    filteredMarkersIndices =  /** @type {any} */(filteredIndices)
     filteredMarkersIndices.includeRest = filters.includeRest
     onClickCompletable.haveFilters = true
     onClickCompletable.update()
 }
 
 function customFilters(filters, excludes) {
+    /** @type Array<number> */
     const filteredIndices = Array(allMarkersInfo.length)
     filteredIndices.length = 0
     for(let i = 0; i < allMarkersInfo.length; i++) {
@@ -1014,6 +1017,7 @@ function customFilters(filters, excludes) {
 }
 
 function findNames(names) {
+    /** @type Array<number> */
     const filteredIndices = Array(names.length)
     filteredIndices.length = 0
     for(let i = 0; i < allMarkersInfo.length; i++) {
@@ -1060,6 +1064,7 @@ function findRaceSpirits(transitions) {
         "Overworld > Tower_4",
     ]
 
+    /** @type Array<number> */
     const filteredIndices = Array(50)
     filteredIndices.length = 0
 
