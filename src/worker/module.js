@@ -1,5 +1,6 @@
 // @ts-check
 import * as Load from '../load.js'
+import { parse } from '../parse.js'
 import markersData from '$/markers.json'
 import markersMeta from '$/markers-meta.json'
 import { meta, getAsSchema, parsedSchema, stepsToBase, getBase } from '../schema.js'
@@ -142,8 +143,9 @@ function premultiplyBy(n, ni, m, mi) {
 
 const objectsLoadedP = objectsP.then(objectsA => {
     const s = performance.now()
-    scenes = Load.parse(parsedSchema, objectsA)
-    const objectCount = Load.getLastCounts()[ti.GameObject]
+    const result = parse(parsedSchema, objectsA)
+    scenes = result[0]
+    const objectCount = result[1][ti.GameObject]
     const e1 = performance.now()
 
     matrixArr = new Float32Array(objectCount * 6)
@@ -483,7 +485,7 @@ const boxPoints = [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]
 
 var polygons
 Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
-    polygons = Load.parse(parsedSchema, polygonsA)
+    polygons = parse(parsedSchema, polygonsA)[0]
 
     const { colliderObjects } = pObjects
 
