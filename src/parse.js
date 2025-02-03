@@ -4,25 +4,17 @@ export async function parse(parsedSchema, objectsUint8Array) {
     var bytes4view = new DataView(bytes4)
 
     const ti = parsedSchema.typeSchemaI
-    const schema = parsedSchema.schema
 
-    var parserType = Array(schema.length)
-    parserType[ti["GameManager+None"]] = 8
-    parserType[ti["System.Boolean"]] = 0
-    parserType[ti["System.Int32"]] = 1
-    parserType[ti["System.Single"]] = 2
-    parserType[ti["System.String"]] = 3
-    parserType[ti["GameManager+Reference"]] = 1
-    parserType[ti["GameManager+Sprite"]] = 1
-    parserType[ti["UnityEngine.Vector2"]] = 4
-    parserType[ti["GameManager+Any"]] = 5
-
-    for(let i = 0; i < schema.length; i++) {
-        const s = schema[i]
-        if(parserType[i] != null) continue
-
-        if(s.type === 1) parserType[i] = 6
-        else if(s.type == 2) parserType[i] = 7
+    var primIParsers = {
+        [ti["GameManager+None"]]: () => { throw new Error("None is not parsable i=" + index) },
+        [ti["System.Boolean"]]: () => pop() != 0,
+        [ti["System.Int32"]]: parseCompressedInt,
+        [ti["System.Single"]]: parseFloat,
+        [ti["System.String"]]: parseString,
+        [ti["GameManager+Reference"]]: parseCompressedInt,
+        [ti["GameManager+Sprite"]]: parseCompressedInt,
+        [ti["UnityEngine.Vector2"]]: parseVector2,
+        [ti["GameManager+Any"]]: parseAny,
     }
 
     var index = 0
@@ -33,325 +25,126 @@ export async function parse(parsedSchema, objectsUint8Array) {
     var counts = []
     for(let i = 0; i < parsedSchema.schema.length; i++) counts[i] = 0
 
-    var has = true
+    return [await parseAny(), counts]
 
-    const stack = [{ t: 5, $: 0 }]
-    const results = []
-
-    try {
-        while(stack.length > 0) {
-            const e = stack[stack.length - 1]
-            const t = e.t
-            if(t === 0) {
-                if(!has) await suspend()
-                results.push(pop() !== 0)
-                stack.length--
-                continue
-            }
-            else if(t === 1) {
-                let res = 0
-                let i = 0
-                while(true) {
-                    if(!has) await suspend()
-                    const cur = pop()
-                    res = res + ((cur << (i*7)) | 0) | 0
-                    i++
-                    if((cur & 0b1000_0000) === 0) break
-                }
-                if(res < 0) {
-                    res = int_max - res | 0
-                }
-
-                results.push(res)
-                stack.length--
-                continue
-            }
-            else if(t === 2) {
-                if(!has) await suspend()
-                if(peek() === 0b1111_1111) {
-                    skip()
-                    results.push(0)
-                    stack.length--
-                    continue
-                }
-
-                for(let i = 3; i > -1; i--) {
-                    if(!has) await suspend()
-                    bytes4view.setUint8(i, pop())
-                }
-
-                results.push(bytes4view.getFloat32(0, true))
-                stack.length--
-                continue
-
-            }
-            else if(t === 3) {
-                if(e.$ <= 0) {
-                    e.$++
-                    if(!has) await suspend()
-                    e.reused = peek() !== 0
-                }
-
-                if(e.reused) {
-                    if(e.$ <= 1) {
-                        e.$++
-                        stack.push({ t: 1 })
-                        continue
-                    }
-
-                    const index = results.pop()
-
-                    results.push(stringMap[index - 1])
-                    stack.length--
-                    continue
-                }
-                else {
-                    if(e.$ <= 1) {
-                        e.$++
-                        skip()
-                    }
-
-                    if(e.$ <= 2) {
-                        e.$++
-                        const res = ''
-
-                        if(!has) await suspend()
-                        if(peek() == 0b1000_0000) {
-                            results.push(res)
-                            stack.length--
-                            continue
-                        }
-                        e.res = res
-                    }
-
-                    let res = e.res
-
-                    while(true) {
-                        if(!has) await suspend()
-                        const cur = pop()
-                        res += String.fromCharCode(cur & 0b0111_1111)
-                        if((cur & 0b1000_0000) !== 0) break
-                    }
-                    stringMap.push(res)
-
-                    results.push(res)
-                    stack.length--
-                    continue
-                }
-            }
-            else if(t === 4) {
-                if(e.$ <= 0) {
-                    e.$++
-                    if(!has) await suspend()
-                    if(peek() === 0b0111_1111) {
-                        skip()
-                        results.push([0, 0])
-                        stack.length--
-                        continue
-                    }
-                }
-
-                if(e.$ <= 1) {
-                    e.$++
-                    stack.push({ t: 2 })
-                    continue
-                }
-                if(e.$ <= 2) {
-                    e.$++
-                    e.x = results.pop()
-                }
-
-                if(e.$ <= 3) {
-                    e.$++
-                    stack.push({ t: 2 })
-                    continue
-                }
-                if(e.$ <= 4) {
-                    e.$++
-                    e.y = results.pop()
-                }
-
-                results.push([e.x, e.y])
-                stack.length--
-                continue
-            }
-            else if(t === 5) {
-                if(e.$ <= 0) {
-                    e.$++
-                    stack.push({ t: 1 })
-                    continue
-                }
-                if(e.$ <= 1) {
-                    e.schemaI = results.pop()
-                    e.$++
-                }
-
-                const schemaI = e.schemaI
-
-                if(e.$ <= 2) {
-                    e.$++
-                    pushBySchema(schemaI)
-                    continue
-                }
-
-                // results.push(results.pop())
-                stack.length--
-                continue
-            }
-            else if(t === 6) {
-                const schemaI = e.schemaI
-
-                if(e.$ <= 0) {
-                    counts[schemaI]++
-
-                    const term = terminals[schemaI]
-                    if(term !== null) {
-                        results.push(term)
-                        stack.length--
-                        continue
-                    }
-                    e.$++
-                }
-
-                const schema = schemas[schemaI]
-
-                if(e.$ <= 1) {
-                    e.$++
-                    e.tic = true
-                    e.i = 0
-                    e.res = {}
-                }
-
-                const res = e.res
-
-                if(e.$ <= 2) {
-                    const types = schema.membersT
-
-                    if(e.i < types.length) {
-                        pushBySchema(types[e.i])
-                        e.i++
-                        continue
-                    }
-
-                    e.$++
-                }
-
-                if(e.$ <= 3) {
-                    e.$++
-                    const names = schema.members
-                    for(let i = 0; i < names.length; i++) {
-                        res[names[i]] = results[results.length - names.length + i]
-                    }
-                    results.length -= names.length
-                }
-
-                if(e.$ <= 4) {
-                    e.$++
-                    if(schema.base != null) {
-                        pushBySchema(schema.base)
-                        continue
-                    }
-                }
-
-                if(e.$ <= 5) {
-                    e.$++
-                    if(schema.base != null) {
-                        res._base = results.pop()
-                    }
-                }
-
-                res._schema = schemaI
-
-                results.push(res)
-                stack.length--
-                continue
-            }
-            else if(t === 7) {
-                const schemaI = e.schemaI
-                const schema = schemas[schemaI]
-
-                if(e.$ <= 0) {
-                    e.$++
-                    stack.push({ t: 1 })
-                    continue
-                }
-                if(e.$ <= 1) {
-                    e.$++
-                    const len = results.pop()
-                    e.res = Array(len)
-                }
-
-                const res = e.res
-                if(e.$ <= 2) {
-                    e.$++
-                    e.i = 0
-                }
-                if(e.$ <= 3) {
-                    if(e.i < res.length) {
-                        pushBySchema(schema.elementT)
-                        e.i++
-                        continue
-                    }
-                    e.$++
-                }
-                if(e.$ <= 4) {
-                    for(let i = 0; i < res.length; i++) {
-                        res[i] = results[results.length - res.length + i]
-                    }
-                    results.length -= res.length
-                    e.$++
-                }
-
-                res._schema = schemaI
-
-                results.push(res)
-                stack.length--
-                continue
-            }
-            else if(t === 8) {
-                throw new Error("None is not parsable i=" + index)
-            }
-            else {
-                throw new Error("Unknown type=" + t)
-            }
+    async function parseCompressedInt() {
+        var res = 0
+        var i = 0
+        do {
+            var cur = await pop()
+            res = res + ((cur << (i*7)) | 0) | 0
+            i++
+        } while(cur & 0b1000_0000)
+        if(res < 0) {
+            res = int_max - res | 0
         }
-    }
-    catch(e) {
-        console.error(stack, results)
-        throw e
+        return res
     }
 
-    console.log(results)
-    return [results.pop(), counts]
-
-
-    function peek() {
-        if(index < array.length) return array[index]
-        throw new Error('Reading past the end')
+    async function parseFloat() {
+        if(await peek() === 0b1111_1111) {
+            await skip()
+            return 0
+        }
+        for(var i = 3; i > -1; i--) bytes4view.setUint8(i, await pop())
+        return bytes4view.getFloat32(0, true)
     }
-    function pop() {
-        var cur = peek()
-        index++
-        has = false
-        return cur
-    }
-    function skip() {
-        index++
-        has = false
-    }
-
-    async function suspend() {
-
+    async function parseVector2() {
+        if(await peek() === 0b0111_1111) {
+            await skip()
+            return [0, 0]
+        }
+        const x = await parseFloat()
+        const y = await parseFloat()
+        return [x, y]
     }
 
-    function pushBySchema(schemaI) {
-        const type = parserType[schemaI]
-        if(type <= 8) {
-            stack.push({ t: type, $: 0, schemaI })
-            return
+    async function parseString() {
+        if(await peek() !== 0) {
+            const index = (await parseCompressedInt()) - 1
+            return stringMap[index]
         }
         else {
-           throw new Error("No type " + type + " for schema " + schemaI + " i=" + index)
+            await skip()
+            var res = ''
+            if(await peek() == 0b1000_0000) return res
+            do {
+                var cur = await pop()
+                res += String.fromCharCode(cur & 0b0111_1111)
+            } while((cur & 0b1000_0000) == 0)
+            stringMap.push(res)
+            return res
         }
+    }
+
+    async function parseAny() {
+        var schemaI = await parseCompressedInt()
+        return parseBySchema(schemaI)
+    }
+
+    function parsePrimitive(schemaI) {
+        return primIParsers[schemaI]()
+    }
+
+    function parseBySchema(schemaI) {
+        const schema = schemas[schemaI]
+        const type = schema.type
+        if(type === 0) {
+            return parsePrimitive(schemaI)
+        }
+        else if(type === 1) {
+            return parseRecord(schemaI)
+        }
+        else if(type === 2) {
+            return parseArray(schemaI)
+        }
+        else throw new Error("No type " + type + " i=" + index)
+    }
+
+    async function parseRecord(schemaI) {
+        counts[schemaI]++
+
+        const term = terminals[schemaI]
+        if(term !== null) return term
+
+        const schema = schemas[schemaI]
+
+        const names = schema.members
+        const types = schema.membersT
+
+        const res = {}
+        for(var i = 0; i < names.length; i++) {
+            res[names[i]] = await parseBySchema(types[i])
+        }
+        if(schema.base != null) {
+            res._base = await parseBySchema(schema.base)
+        }
+        res._schema = schemaI
+
+        return res
+    }
+
+    async function parseArray(schemaI) {
+        const schema = schemas[schemaI]
+        const len = await parseCompressedInt()
+        const res = Array(len)
+        for(var i = 0; i < len; i++) {
+            res[i] = await parseBySchema(schema.elementT)
+        }
+        res._schema = schemaI
+        return res
+    }
+
+    async function peek() {
+        if(index < array.length) return array[index]
+        throw 'Reading past the end'
+    }
+    async function pop() {
+        var cur = peek()
+        index++
+        return cur
+    }
+    async function skip() {
+        index++
     }
 }
