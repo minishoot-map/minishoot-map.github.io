@@ -141,9 +141,10 @@ function premultiplyBy(n, ni, m, mi) {
     return n
 }
 
-const objectsLoadedP = objectsP.then(objectsA => {
+const objectsLoadedP = (async() => {
+    const objectsA = await objectsP
     const s = performance.now()
-    const result = parse(parsedSchema, objectsA)
+    const result = await parse(parsedSchema, objectsA)
     scenes = result[0]
     const objectCount = result[1][ti.GameObject]
     const e1 = performance.now()
@@ -162,7 +163,7 @@ const objectsLoadedP = objectsP.then(objectsA => {
     console.log('prepared in', e2 - e1)
 
     return objects
-})
+})()
 
 /** @returns {[textureI: number]} */
 function createOneTex(comp) {
@@ -484,8 +485,11 @@ objectsProcessedP.then(({ regularDisplays }) => {
 const boxPoints = [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]
 
 var polygons
-Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
-    polygons = parse(parsedSchema, polygonsA)[0]
+;(async() => {
+    const pObjects = await objectsProcessedP
+    const polygonsA = await polygonsP
+
+    polygons = (await parse(parsedSchema, polygonsA))[0]
 
     const { colliderObjects } = pObjects
 
@@ -683,7 +687,7 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
         verts, indices, polyDrawData,
         circularData, circularDrawData,
     }, [verts.buffer, indices.buffer, circularData])
-}).catch(e => {
+})().catch(e => {
     console.error('Error processing colliders', e)
 })
 
