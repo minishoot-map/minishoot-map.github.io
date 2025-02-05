@@ -233,6 +233,7 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
             a(ti.RaceManager)
             a(ti.RaceCheckpoint)
             a(ti.Checkpoint)
+            a(ti.MovePickupWhenFreed)
         }
     }
 }

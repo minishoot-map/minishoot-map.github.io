@@ -39,7 +39,7 @@ export function setCurrentObject(obj) {
 function Filter({ filter }) {
     const [name, displayName, enabled, type, param, collapse] = filter
     var inner, t = 'inline'
-    if(type === 'filters') {
+    if(type === 'filters' || type === 'group') {
         t = 'newline'
         const filtersA = []
         for(let i = 0; i < param.length; i++) {

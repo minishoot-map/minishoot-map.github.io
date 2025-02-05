@@ -216,7 +216,7 @@ const filtersCustom = [
         [
             ['Npc', $t.npcs, true, 'filters', []],
             ['NpcTiny', 'Race spirits', true, 'filters', []],
-            ['Pickup', 'Pickups', true, 'filters', [
+            ['', 'Pickups', true, 'group', [
                 ['CrystalKey', $t.regkey, true, 'filters', []],
                 ['BossKey', $t.bosskey, true, 'filters', []],
                 ['CrystalBoss', $t.bossdropkey, true, 'filters', []],
@@ -227,6 +227,7 @@ const filtersCustom = [
                 ['ScarabPickup', $t.scarab, true, 'filters', []],
                 ['LorePickup', $t.lore, true, 'filters', []],
                 ['MapPickup', $t.mappiece, true, 'filters', []],
+                ['Pickup', 'Remaining pickups', true, 'filters', []],
             ], true],
             [
                 'Enemy', $t.enemy, true, 'filters',
@@ -269,16 +270,21 @@ const filtersCustom = [
                     ],
                 ], true
             ],
-            ['Unlocker', 'Unlockers', true, 'filters', []],
-            ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
-            ['UnlockerTorch', 'Unlocker torches', true, 'filters', []],
-            ['RaceManager', 'Timer Races', true, 'filters', [
-                ['RaceCheckpoint', 'Checkpoints', false, 'filters', []]
-            ]],
+            ['', 'Unlockers', true, 'filters', [
+                ['Unlocker', 'Regular unlockers', true, 'filters', []],
+                ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
+                ['UnlockerTorch', 'Unlocker torches', true, 'filters', []],
+                ['RaceManager', 'Timer Races', true, 'filters', [
+                    ['RaceCheckpoint', 'Checkpoints', false, 'filters', []]
+                ]],
+            ], true],
             ['Transition', $t.transition, true, 'filters', []],
             ['Tunnel', $t.tunnel, true, 'filters', []],
-            ['Torch', $t.torch, false, 'filters', []],
-            ['Checkpoint', 'Checkpoints', false, 'filters', []],
+            ['', 'Misc', false, 'group', [
+                ['Torch', $t.torch, true, 'filters', []],
+                ['Checkpoint', 'Checkpoints', true, 'filters', []],
+                ['MovePickupWhenFreed', 'Npc check left of spawn', true, 'filters', []],
+            ], true],
         ],
     ],
     [
@@ -369,22 +375,29 @@ function prepFiltersFilter(filter, res) {
     res.push([filter[0], propFilters])
 }
 
-function extractMarkerFilters(filters) {
-    const res = []
-    if(!filters[0][2]) return res
-
-    const ff = filters[0][4]
-    for(let i = 0; i < ff.length; i++) {
-        const filter = ff[i]
+function extracFilterArr(filterArr, res) {
+    for(let i = 0; i < filterArr.length; i++) {
+        const filter = filterArr[i]
 
         if(!filter[2]) continue
-        if(filter[3] !== 'filters') {
+        if(filter[3] === 'group') {
+            extracFilterArr(filter[4], res)
+        }
+        else if(filter[3] === 'filters') {
+            prepFiltersFilter(filter, res)
+        }
+        else {
             console.error('not filters?', filter)
             continue
         }
 
-        prepFiltersFilter(filter, res)
     }
+}
+
+function extractMarkerFilters(filters) {
+    const res = []
+    if(!filters[0][2]) return res
+    extracFilterArr(filters[0][4], res)
     return res
 }
 
