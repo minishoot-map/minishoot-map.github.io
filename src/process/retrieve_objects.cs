@@ -747,6 +747,15 @@ public partial class GameManager : MonoBehaviour
         }, "spriteI", "destination");
         addrec<Torch, ValueTuple<Sprite>>(v => new(toSprite(tryAddSprite(v.GetComponentInChildren<SpriteRenderer>()))), "spriteI");
         addrec<NpcTiny, ValueTuple<Sprite>>(v => new(toSprite(tryAddSprite(v.GetComponentInChildren<SpriteRenderer>()))), "spriteI");
+        addrec<MovePickupWhenFreed, (Reference, Reference[])>(v => {
+            var group = prop(v, "npcToFree") as Npc[];
+            var rs = new Reference[group == null ? 0 : group.Length];
+            for(var i = 0; i < rs.Length; i++) {
+                rs[i] = componentRef(group[i]);
+            }
+
+            return (componentRef(prop(v, "pickup") as Pickup), rs);
+        }, "pickup", "npcToFree");
 
         var scenes = new Scene[SceneManager.sceneCount];
         for(int i = 0; i < SceneManager.sceneCount; i++) {
