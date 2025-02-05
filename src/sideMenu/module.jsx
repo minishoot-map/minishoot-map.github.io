@@ -358,6 +358,11 @@ function componentInfo(comp, obj) {
         return { empty: false, name: cname, component: decl(comp, obj) }
     }
 
+    const s = meta.schemas[comp._schema]
+    if(s && s.type === 1 && s.membersT.length > 0) {
+        return { empty: false, name: cname, component: <FallbackComponent comp={comp} obj={obj}/> }
+    }
+
     var inner = null
     var isEmpty = true
     var base = comp._base
@@ -383,6 +388,45 @@ function Component({ comp, obj }) {
 const componentDecl = new Map()
 function ac(schema, componentC) {
     componentDecl.set(schema, componentC)
+}
+
+function FallbackComponent({ comp, obj }) {
+    const s = meta.schemas[comp._schema]
+
+    const properties = []
+    for(let i = 0; i < s.membersT.length; i++) {
+        const type = s.membersT[i]
+        const name = s.members[i]
+        const v = comp[name]
+
+        if(type === ti.Boolean) {
+            properties.push(<Prop>{name + ':'}{bs(v)}</Prop>)
+        }
+        else if(type === ti.Int32 || type === ti.Single || type === ti.String) {
+            properties.push(<Prop>{name + ':'}{v}</Prop>)
+        }
+        else if(type === ti['GameManager+Reference']) {
+            properties.push(<Prop>{name + ':'}<Link index={v} obj={obj}/></Prop>)
+        }
+        else if(type === ti['GameManager+Reference[]']) {
+            const refs = Array(v.length)
+            for(let j = 0; j < v.length; j++) {
+                refs[j] = <Link key={j} index={v[j]} obj={obj}/>
+            }
+            properties.push(<Prop>{name + ':'}<Props>{refs}</Props></Prop>)
+        }
+        else if(type === ti.Vector2) {
+            properties.push(<Prop>{name + ':'}{vec2s(v)}</Prop>)
+        }
+        else {
+            properties.push(<Prop>{name + ':'}{Unknown}</Prop>)
+        }
+    }
+
+    return <Props>
+        {...properties}
+        <Component comp={comp._base} obj={obj}/>
+    </Props>
 }
 
 ac(ti.Transform, (c, o) => {
@@ -584,7 +628,7 @@ const statsNames = [
 	'PowerSlowLevel',
 ]
 
-const Unknown = <i>{'<Unknown'}</i>
+const Unknown = <i>{'<Unknown>'}</i>
 
 ac(ti.ModulePickup, (c, o) => {
     return <Props>
