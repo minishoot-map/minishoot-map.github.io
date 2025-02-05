@@ -33,15 +33,15 @@ export default {
     ],
     desc2: [
         'This map contains all race spirit locations, modules, coins, scarabs, keys, health, energy and other pickups. All NPCs and enemies, map and lore fragments, buttons, XP crystals, and every other game object.',
-        'Карта содержит все гонки, модули, монеты, скарабеев, ключи, апгрейды HP, энергии и пр., NPC, врагов, фрагменты карты и лора, кнопки, кристаллы опыта и все остальные игровые объекты из версии <i>v1</i> игры.',
+        'Карта содержит все гонки, модули, монеты, скарабеев, ключи, апгрейды HP, энергии и пр., NPC, врагов, фрагменты карты и лора, кнопки, кристаллы опыта и все остальные игровые объекты.'
     ],
     about_proj: [
         'About the project:',
         'О проекте:'
     ],
     desc3: [
-        `The data and images are extracted from the <i>v1</i> version of the game. The source code is available on`,
-        `Данные и изображения извлечены из версии <i>v1</i> игры. Исходный код доступен на`
+        `The data and images are extracted from the <i>v1.05</i> version of the game. The source code is available on`,
+        `Данные и изображения извлечены из версии <i>v1.05</i> игры. Исходный код доступен на`
     ],
     map: [`Map`, `Карта`],
     object: [`Object`, `Объект`],
