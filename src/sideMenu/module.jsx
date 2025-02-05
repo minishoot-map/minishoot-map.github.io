@@ -360,7 +360,7 @@ function componentInfo(comp, obj) {
 
     const s = meta.schemas[comp._schema]
     if(s && s.type === 1 && s.membersT.length > 0) {
-        return { empty: false, name: cname, component: <FallbackComponent comp={comp} obj={obj}/> }
+        return { empty: isFallbackEmpty(comp), name: cname, component: <FallbackComponent comp={comp} obj={obj}/> }
     }
 
     var inner = null
@@ -390,6 +390,37 @@ function ac(schema, componentC) {
     componentDecl.set(schema, componentC)
 }
 
+function isFallbackEmpty(comp) {
+    const s = meta.schemas[comp._schema]
+    if(s && s.type === 1 && s.membersT.length > 0) {
+        let usefulCount = 0
+
+        for(let i = 0; i < s.membersT.length; i++) {
+            const type = s.membersT[i]
+
+            if(type === ti.Boolean) {
+                usefulCount++
+            }
+            else if(type === ti.Int32 || type === ti.Single || type === ti.String) {
+                usefulCount++
+            }
+            else if(type === ti['GameManager+Reference']) {
+                usefulCount++
+            }
+            else if(type === ti['GameManager+Reference[]']) {
+                if(comp[s.members[i]].length > 0) usefulCount++
+            }
+            else if(type === ti.Vector2) {
+                usefulCount++
+            }
+        }
+
+        return usefulCount === 0
+    }
+
+    return true
+}
+
 function FallbackComponent({ comp, obj }) {
     const s = meta.schemas[comp._schema]
 
@@ -417,6 +448,9 @@ function FallbackComponent({ comp, obj }) {
         }
         else if(type === ti.Vector2) {
             properties.push(<Prop>{name + ':'}{vec2s(v)}</Prop>)
+        }
+        else if(type === ti['GameManager+Sprite']) {
+            continue;
         }
         else {
             properties.push(<Prop>{name + ':'}{Unknown}</Prop>)
