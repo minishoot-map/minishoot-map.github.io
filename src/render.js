@@ -278,6 +278,7 @@ const filtersCustom = [
             ['Transition', $t.transition, true, 'filters', []],
             ['Tunnel', $t.tunnel, true, 'filters', []],
             ['Torch', $t.torch, false, 'filters', []],
+            ['Checkpoint', 'Checkpoints', false, 'filters', []],
         ],
     ],
     [

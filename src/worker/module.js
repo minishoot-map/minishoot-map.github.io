@@ -232,6 +232,7 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
             a(ti.UnlockerTorch)
             a(ti.RaceManager)
             a(ti.RaceCheckpoint)
+            a(ti.Checkpoint)
         }
     }
 }
