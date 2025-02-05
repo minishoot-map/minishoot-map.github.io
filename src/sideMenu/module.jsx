@@ -353,13 +353,10 @@ function componentInfoToComponent(childC) {
 function componentInfo(comp, obj) {
     const cname = meta.schemas[comp._schema].shortName
 
-    for(let i = 0; i < componentDecl.length; i++) {
-        const schemaI = componentDecl[i][0]
-        if(comp._schema !== schemaI) continue
-
-        return { empty: false, name: cname, component: componentDecl[i][1](comp, obj) }
+    const decl = componentDecl.get(comp._schema)
+    if(decl) {
+        return { empty: false, name: cname, component: decl(comp, obj) }
     }
-
 
     var inner = null
     var isEmpty = true
@@ -383,9 +380,9 @@ function Component({ comp, obj }) {
     return componentInfoToComponent(componentInfo(comp, obj))
 }
 
-const componentDecl = []
+const componentDecl = new Map()
 function ac(schema, componentC) {
-    componentDecl.push([schema, componentC])
+    componentDecl.set(schema, componentC)
 }
 
 ac(ti.Transform, (c, o) => {
