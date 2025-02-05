@@ -37,6 +37,8 @@ function parseVector2() {
     return [x, y]
 }
 
+var decoder = new TextDecoder('utf-8')
+
 function parseString() {
     if(peek() !== 0) {
         const index = parseCompressedInt() - 1
@@ -44,12 +46,9 @@ function parseString() {
     }
     else {
         skip()
-        var res = ''
-        if(peek() == 0b1000_0000) return res
-        do {
-            var cur = pop()
-            res += String.fromCharCode(cur & 0b0111_1111)
-        } while((cur & 0b1000_0000) == 0)
+        const len = parseCompressedInt()
+        const res = decoder.decode(array.slice(index, index + len))
+        index += len
         stringMap.push(res)
         return res
     }

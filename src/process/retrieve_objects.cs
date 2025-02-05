@@ -14,11 +14,11 @@ using System.Text;
 
 // Required:
 // GameManager:
-// 1. basePath (ends in slash or backslash!):
+// 1. basePath:
     /*
 private static string basePath{ get{ return
 """ """
-; } }
++ "\\"; } }
     */
     // This will be the output directory.
 
@@ -599,14 +599,8 @@ public partial class GameManager : MonoBehaviour
                 w.Write((byte)0);
 
                 byte[] bytes = System.Text.Encoding.UTF8.GetBytes(v);
-                for(var i = 0; i < bytes.Length; i++) if((sbyte)bytes[i] <= 0) throw new Exception(v);
-                if(bytes.Length == 0) w.Write((byte)(1u << 7));
-                else {
-                    if(bytes.Length == 1 && bytes[0] == (1u << 7)) throw new Exception();
-                    bytes[bytes.Length - 1] = (byte)(bytes[bytes.Length - 1] | (1u << 7));
-                    w.Write(bytes);
-                }
-
+                w.Write(compactInt(bytes.Length));
+                w.Write(bytes);
                 textIndices.Add(v, curTextIndex++);
             }
         });
@@ -710,6 +704,28 @@ public partial class GameManager : MonoBehaviour
                 rs
             );
         }, "target", "targetBis", "linkedTorch", "group");
+        addrec<RaceCheckpoint, (bool, Reference[])>(v => {
+            var group = prop(v, "torches") as Torch[];
+            var rs = new Reference[group == null ? 0 : group.Length];
+            for(var i = 0; i < rs.Length; i++) {
+                rs[i] = componentRef(group[i]);
+            }
+            return (v.IsStartCheckpoint, rs);
+        }, "isStartCheckpoint", "torches");
+        addrec<RaceManager, (Reference, Reference, float, Reference[])>(v => {
+            var group = prop(v, "torchGroup") as RaceCheckpoint[];
+            var rs = new Reference[group == null ? 0 : group.Length];
+            for(var i = 0; i < rs.Length; i++) {
+                rs[i] = componentRef(group[i]);
+            }
+
+            return (
+                componentRef(v.Target),
+                componentRef(v.TargetBis),
+                (float)prop(v, "duration"),
+                rs
+            );
+        }, "target", "targetBis", "duration", "torchGroup");
         addrec<Pickup, ValueTuple<Sprite>>(v => new(toSprite(tryAddSprite(v.Sprite))), "spriteI");
         addrec<KeyUnique, ValueTuple<int>>(v => new(Convert.ToInt32(v.KeyId)), "keyId");
         addrec<ModulePickup, ValueTuple<int>>(v => new(Convert.ToInt32(v.Id)), "moduleId");
