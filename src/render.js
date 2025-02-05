@@ -272,6 +272,9 @@ const filtersCustom = [
             ['Unlocker', 'Unlockers', true, 'filters', []],
             ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
             ['UnlockerTorch', 'Unlocker torches', true, 'filters', []],
+            ['RaceManager', 'Timer Races', true, 'filters', [
+                ['RaceCheckpoint', 'Checkpoints', false, 'filters', []]
+            ]],
             ['Transition', $t.transition, true, 'filters', []],
             ['Tunnel', $t.tunnel, true, 'filters', []],
             ['Torch', $t.torch, false, 'filters', []],

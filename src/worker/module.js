@@ -218,29 +218,20 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
             }
         }
         if(!added) {
-            let s = stepsToBase(i, ti.Transition)
-            if(s != null) {
-                schemaDisplayFuncI[i] = [s, -1, si]
+            function a(schemaI) {
+                let s = stepsToBase(i, schemaI)
+                if(s != null) {
+                    schemaDisplayFuncI[i] = [s, -1, si]
+                }
+                si++
             }
-            si++
 
-            s = stepsToBase(i, ti.Unlocker)
-            if(s != null) {
-                schemaDisplayFuncI[i] = [s, -2, si]
-            }
-            si++
-
-            s = stepsToBase(i, ti.UnlockerTrigger)
-            if(s != null) {
-                schemaDisplayFuncI[i] = [s, -3, si]
-            }
-            si++
-
-            s = stepsToBase(i, ti.UnlockerTorch)
-            if(s != null) {
-                schemaDisplayFuncI[i] = [s, -4, si]
-            }
-            si++
+            a(ti.Transition)
+            a(ti.Unlocker)
+            a(ti.UnlockerTrigger)
+            a(ti.UnlockerTorch)
+            a(ti.RaceManager)
+            a(ti.RaceCheckpoint)
         }
     }
 }
@@ -1006,6 +997,7 @@ function calcMarkerFilters(name, filters) {
             [ti.UnlockerTrigger]: e,
             [ti.UnlockerTorch]: e,
             [ti.NpcTiny]: e,
+            [ti.RaceManager]: e,
         }
         if(filters.transitions) {
             fs[ti.Transition] = e
