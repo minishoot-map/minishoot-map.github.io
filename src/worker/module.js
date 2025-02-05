@@ -245,27 +245,40 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
     }
 }
 
-/** @typedef {(component: any) => number | number[]} ReferenceFunc */
-/** @type {Map<number, ReferenceFunc>} */
-const referenceFuncs = new Map()
+/** @typedef {Array<[name: string, type: number]>} ReferenceDesc */
+/** @type {Map<number, ReferenceDesc>} */
+const referenceDescs = new Map()
 /** @type {Array<Array<[baseSteps: number, funcI: number]>>} */
 const schemaReferenceFuncI = Array(meta.schemas.length)
 {
-    /**
-        @param {number} schemaI
-        @param {ReferenceFunc} func
-    */
-    function a(schemaI, func) { referenceFuncs.set(schemaI, func) }
+    const refT = ti["GameManager+Reference"]
+    const refArrT = ti["GameManager+Reference[]"]
 
-    a(ti.ScarabPickup, (it) => it.container)
-    a(ti.Transition, (it) => it.destI)
-    a(ti.Unlocker, (it) => [it.target, it.targetBis])
-    a(ti.UnlockerTrigger, (it) => [it.target, it.targetBis])
-    a(ti.UnlockerTorch, (it) => [it.target, it.targetBis, it.linkedTorch])
-    a(ti.Buyable, (it) => it.owner)
-    a(ti.Tunnel, (it) => it.destination)
+    const s = meta.schemas;
+    for(let i = 0; i < s.length; i++) {
+        const it = s[i]
+        if(it.type !== 1) continue;
 
-    const referenceKeys = [...referenceFuncs.keys()]
+
+        /** @type {ReferenceDesc} */
+        const refDesc = []
+        for(let j = 0; j < it.membersT.length; j++) {
+            const m = it.membersT[j]
+            const n = it.members[j]
+            if(m === refT) {
+                refDesc.push([n, 0])
+            }
+            else if(m === refArrT) {
+                refDesc.push([n, 1])
+            }
+        }
+
+        if(refDesc.length > 0) {
+            referenceDescs.set(i, refDesc)
+        }
+    }
+
+    const referenceKeys = [...referenceDescs.keys()]
 
     for(let i = 0; i < meta.schemas.length; i++) {
         /** @type {Array<[baseSteps: number, funcI: number]>} */
@@ -278,6 +291,30 @@ const schemaReferenceFuncI = Array(meta.schemas.length)
             if(s != null) res.push([s, schemaI])
         }
     }
+}
+
+/**
+    @param {any} comp
+    @param {ReferenceDesc} desc
+    @return number[]
+*/
+function getReferences(comp, desc) {
+    /** @type {number[]} */
+    const result = []
+    for(let i = 0; i < desc.length; i++) {
+        const it = desc[i]
+        const v = comp[it[0]]
+        if(it[1] === 0) {
+            result.push(v)
+        }
+        else {
+            for(let j = 0; j < v.length; j++) {
+                result.push(v[j])
+            }
+        }
+    }
+
+    return result
 }
 
 
@@ -338,23 +375,12 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
                 const kInfo = kInfos[ki]
                 const it = getBase(comp, kInfo[0])
                 // @ts-ignore
-                const res = referenceFuncs.get(kInfo[1])(it)
-                if(Array.isArray(res)) {
-                    for(let ri = 0; ri < res.length; ri++) {
-                        const r = res[ri]
-                        if(r < 0) continue
-                        const obj = objects[r]
-                        if(obj == null) continue
+                const res = getReferences(it, referenceDescs.get(kInfo[1]))
 
-                        /** @type {Set<number> | undefined} */
-                        const rb = obj._referencedBy
-                        if(rb == null) obj._referencedBy = new Set([i])
-                        else rb.add(i)
-                    }
-                }
-                else {
-                    if(res < 0) continue
-                    const obj = objects[res]
+                for(let ri = 0; ri < res.length; ri++) {
+                    const r = res[ri]
+                    if(r < 0) continue
+                    const obj = objects[r]
                     if(obj == null) continue
 
                     /** @type {Set<number> | undefined} */
