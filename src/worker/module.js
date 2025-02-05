@@ -249,7 +249,7 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
 /** @type {Map<number, ReferenceDesc>} */
 const referenceDescs = new Map()
 /** @type {Array<Array<[baseSteps: number, funcI: number]>>} */
-const schemaReferenceFuncI = Array(meta.schemas.length)
+const schemaReferenceDescI = Array(meta.schemas.length)
 {
     const refT = ti["GameManager+Reference"]
     const refArrT = ti["GameManager+Reference[]"]
@@ -283,7 +283,7 @@ const schemaReferenceFuncI = Array(meta.schemas.length)
     for(let i = 0; i < meta.schemas.length; i++) {
         /** @type {Array<[baseSteps: number, funcI: number]>} */
         const res = []
-        schemaReferenceFuncI[i] = res
+        schemaReferenceDescI[i] = res
 
         for(let j = 0; j < referenceKeys.length; j++) {
             const schemaI = referenceKeys[j]
@@ -370,7 +370,7 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
                 }
             }
 
-            const kInfos = schemaReferenceFuncI[comp._schema]
+            const kInfos = schemaReferenceDescI[comp._schema]
             for(let ki = 0; ki < kInfos.length; ki++) {
                 const kInfo = kInfos[ki]
                 const it = getBase(comp, kInfo[0])
@@ -740,37 +740,18 @@ function serializeObject(obj) {
     }
 
     for(let i = 0; i < obj.components.length; i++) {
-        const cc = obj.components[i]
-        let s
-        s = getAsSchema(cc, ti.ScarabPickup)
-        if(s) a(s.container)
+        const comp = obj.components[i]
 
-        s = getAsSchema(cc, ti.Transition)
-        if(s) a(s.destI)
-
-        s = getAsSchema(cc, ti.Unlocker)
-        if(s) {
-            a(s.target)
-            a(s.targetBis)
-            for(let i = 0; i < s.group.length; i++) a(s.group[i])
+        const kInfos = schemaReferenceDescI[comp._schema]
+        for(let ki = 0; ki < kInfos.length; ki++) {
+            const kInfo = kInfos[ki]
+            const it = getBase(comp, kInfo[0])
+            const desc = referenceDescs.get(kInfo[1])
+            const refs = getReferences(it, desc)
+            for(let j = 0; j < refs.length; j++) {
+                a(refs[j])
+            }
         }
-
-        s = getAsSchema(cc, ti.UnlockerTorch)
-        if(s) {
-            a(s.target)
-            a(s.targetBis)
-            a(s.linkedTorch)
-            for(let i = 0; i < s.group.length; i++) a(s.group[i])
-        }
-
-        s = getAsSchema(cc, ti.Buyable)
-        if(s) a(s.owner)
-
-        s = getAsSchema(cc, ti.Tunnel)
-        if(s) a(s.destination)
-
-        s = getAsSchema(cc, ti.Tunnel)
-        if(s) a(s.destination)
     }
 
     /** @type {Set<number> | undefined} */
