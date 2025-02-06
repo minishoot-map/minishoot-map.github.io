@@ -2,7 +2,7 @@
 import * as Load from '../load.js'
 import markersData from '$/markers.json'
 import markersMeta from '$/markers-meta.json'
-import { meta, getAsSchema, parsedSchema, stepsToBase, getBase } from '../schema.js'
+import { meta, parsedSchema, stepsToBase, gotoBase, getAsBase, getHierarchy } from '../schema.js'
 
 const onClickCompletable = {
     haveMarkers: false,
@@ -72,6 +72,11 @@ export function onmessage(it) {
 
 const ti = parsedSchema.typeSchemaI
 
+var Collider2Dh_h = getHierarchy(ti.Collider2D)
+var Transform_h = getHierarchy(ti.Transform)
+var Npc_h = getHierarchy(ti.Npc)
+var CrystalNpc_h = getHierarchy(ti.CrystalNpc)
+
 var matrixArr
 var matrixEndI = 0
 
@@ -98,7 +103,7 @@ var objects = []
 function prepareObjects(parentMatrixI, parentI, obj) {
     var transform
     for(let i = 0; i < obj.components.length && transform == null; i++) {
-        transform = getAsSchema(obj.components[i], parsedSchema.typeSchemaI.Transform)
+        transform = getAsBase(obj.components[i], Transform_h)
     }
     if(transform == null) throw "Unreachable"
     obj.transform = transform
@@ -195,7 +200,7 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
         ti.SkillPickup, ti.StatsPickup, ti.LorePickup, ti.MapPickup
     ]).forEach(s => {
         const steps = stepsToBase(s, ti.Pickup)
-        a(s, (it, comp) => [getBase(it, steps).spriteI])
+        a(s, (it, comp) => [gotoBase(it, steps).spriteI])
     })
     a(ti.Pickup, (it, comp) => [it.spriteI])
     a(ti.Npc, (it, comp) => [it.spriteI, 1.5])
@@ -378,21 +383,21 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
                 minPriority = info[2]
             }
 
-            const coll = getAsSchema(comp, ti.Collider2D)
+            const coll = getAsBase(comp, Collider2Dh_h)
             if(coll != null) {
                 if(coll._schema !== ti.TilemapCollider2D) {
                     colliderObjects.push([obj, comp])
                 }
             }
 
-            const npc = getAsSchema(comp, ti.Npc)
+            const npc = getAsBase(comp, Npc_h)
             if(npc) {
                 let p = npcIds.get(npc.id)
                 if(!p) npcIds.set(npc.id, p = [])
                 p.push(i)
             }
 
-            const crystalNpc = getAsSchema(comp, ti.CrystalNpc)
+            const crystalNpc = getAsBase(comp, CrystalNpc_h)
             if(crystalNpc) {
                 let p = npcIds.get(crystalNpc.id)
                 if(!p) npcIds.set(crystalNpc.id, p = [])
@@ -403,7 +408,7 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
         if(minInfo != null) {
             const steps = minInfo.info[0], funcI = minInfo.info[1]
             const comp = minInfo.comp
-            const it = getBase(comp, steps)
+            const it = gotoBase(comp, steps)
             if(funcI < 0) {
                 specialMarkers.push({ object: obj, component: it })
             }
@@ -431,7 +436,7 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
             const kInfos = schemaReferenceDescI[comp._schema]
             for(let ki = 0; ki < kInfos.length; ki++) {
                 const kInfo = kInfos[ki]
-                const it = getBase(comp, kInfo[0])
+                const it = gotoBase(comp, kInfo[0])
                 // @ts-ignore
                 const res = getReferences(it, referenceDescs.get(kInfo[1]), i)
 
@@ -615,7 +620,7 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
             const data = datas[j]
             const mI = data[0].matrixI
             const coll = data[1]
-            const off = getAsSchema(coll, ti.Collider2D).offset
+            const off = getAsBase(coll, Collider2Dh_h).offset
 
             if(coll._schema === ti.CompositeCollider2D) {
                 const poly = polygons[coll.polygons]
@@ -704,7 +709,7 @@ Promise.all([objectsProcessedP, polygonsP]).then(([pObjects, polygonsA]) => {
             const data = cdd[j]
             const mI = data[0].matrixI
             const coll = data[1]
-            const off = getAsSchema(coll, ti.Collider2D).offset
+            const off = getAsBase(coll, Collider2Dh_h).offset
 
             const arrOff = circI * cirSizeF
 
@@ -784,7 +789,7 @@ function serializeObject(obj) {
         const kInfos = schemaReferenceDescI[comp._schema]
         for(let ki = 0; ki < kInfos.length; ki++) {
             const kInfo = kInfos[ki]
-            const it = getBase(comp, kInfo[0])
+            const it = gotoBase(comp, kInfo[0])
             const desc = referenceDescs.get(kInfo[1])
             const refs = getReferences(it, desc, obj._index)
             for(let j = 0; j < refs.length; j++) {
