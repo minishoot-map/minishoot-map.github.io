@@ -742,6 +742,15 @@ public partial class GameManager : MonoBehaviour
             v => (toSprite(tryAddSprite(v.GetComponentInChildren<SpriteRenderer>())), (int)v.Id),
             "spriteI", "id"
         );
+        addrec<CrystalNpc, (Sprite, int)>(v => {
+            var child = v.transform.Find("Ally");
+            var sprite = new Sprite{ sprite = -1 };
+            if(child != null) {
+                sprite = toSprite(tryAddSprite(child.GetComponentInChildren<SpriteRenderer>()));
+            }
+
+            return (sprite, (int)prop(v, "id"));
+        }, "spriteI", "id");
         addrec<Tunnel, (Sprite, Reference)>(v => {
             return (toSprite(tryAddSprite(v.Sprite)), componentRef(v.Destination));
         }, "spriteI", "destination");

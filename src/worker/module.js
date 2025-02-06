@@ -202,6 +202,7 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
     a(ti.Tunnel, (it, comp) => [it.spriteI, 1.5])
     a(ti.Torch, (it, comp) => [it.spriteI, 1])
     a(ti.NpcTiny, (it, comp) => [it.spriteI, 1])
+    a(ti.CrystalNpc, (it, comp) => [it.spriteI, 1.5])
 
     const displayKeys = [...displayFuncs.keys()]
 
@@ -238,6 +239,9 @@ const schemaDisplayFuncI = Array(meta.schemas.length)
     }
 }
 
+/** @type {Map<number, number[]>} */
+const npcIds = new Map()
+
 /** @typedef {Array<[name: string, type: number]>} ReferenceDesc */
 /** @type {Map<number, ReferenceDesc>} */
 const referenceDescs = new Map()
@@ -271,6 +275,17 @@ const schemaReferenceDescI = Array(meta.schemas.length)
         }
     }
 
+    if(ti.Npc) {
+        let d = referenceDescs.get(ti.Npc)
+        if(d == null) referenceDescs.set(ti.Npc, d = [])
+        d.push(['id', 2])
+    }
+    if(ti.CrystalNpc) {
+        let d = referenceDescs.get(ti.CrystalNpc)
+        if(d == null) referenceDescs.set(ti.CrystalNpc, d = [])
+        d.push(['id', 2])
+    }
+
     const referenceKeys = [...referenceDescs.keys()]
 
     for(let i = 0; i < meta.schemas.length; i++) {
@@ -289,9 +304,10 @@ const schemaReferenceDescI = Array(meta.schemas.length)
 /**
     @param {any} comp
     @param {ReferenceDesc} desc
+    @param {number} objI
     @return number[]
 */
-function getReferences(comp, desc) {
+function getReferences(comp, desc, objI) {
     /** @type {number[]} */
     const result = []
     for(let i = 0; i < desc.length; i++) {
@@ -300,9 +316,15 @@ function getReferences(comp, desc) {
         if(it[1] === 0) {
             result.push(v)
         }
-        else {
+        else if(it[1] === 1) {
             for(let j = 0; j < v.length; j++) {
                 result.push(v[j])
+            }
+        }
+        else if(it[1] === 2) {
+            const r = (npcIds.get(comp.id) ?? [])
+            for(let j = 0; j < r.length; j++) {
+                if(r[j] != objI) result.push(r[j])
             }
         }
     }
@@ -363,24 +385,18 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
                 }
             }
 
-            const kInfos = schemaReferenceDescI[comp._schema]
-            for(let ki = 0; ki < kInfos.length; ki++) {
-                const kInfo = kInfos[ki]
-                const it = getBase(comp, kInfo[0])
-                // @ts-ignore
-                const res = getReferences(it, referenceDescs.get(kInfo[1]))
+            const npc = getAsSchema(comp, ti.Npc)
+            if(npc) {
+                let p = npcIds.get(npc.id)
+                if(!p) npcIds.set(npc.id, p = [])
+                p.push(i)
+            }
 
-                for(let ri = 0; ri < res.length; ri++) {
-                    const r = res[ri]
-                    if(r < 0) continue
-                    const obj = objects[r]
-                    if(obj == null) continue
-
-                    /** @type {Set<number> | undefined} */
-                    const rb = obj._referencedBy
-                    if(rb == null) obj._referencedBy = new Set([i])
-                    else rb.add(i)
-                }
+            const crystalNpc = getAsSchema(comp, ti.CrystalNpc)
+            if(crystalNpc) {
+                let p = npcIds.get(crystalNpc.id)
+                if(!p) npcIds.set(crystalNpc.id, p = [])
+                p.push(i)
             }
         }
 
@@ -404,6 +420,36 @@ const objectsProcessedP = objectsLoadedP.then(objects => {
             restMarkers.push(obj)
         }
     }
+
+    for(let i = 0; i < objects.length; i++) {
+        const obj = objects[i]
+        const cs = obj.components
+
+        for(let j = 0; j < cs.length; j++) {
+            const comp = cs[j]
+
+            const kInfos = schemaReferenceDescI[comp._schema]
+            for(let ki = 0; ki < kInfos.length; ki++) {
+                const kInfo = kInfos[ki]
+                const it = getBase(comp, kInfo[0])
+                // @ts-ignore
+                const res = getReferences(it, referenceDescs.get(kInfo[1]), i)
+
+                for(let ri = 0; ri < res.length; ri++) {
+                    const r = res[ri]
+                    if(r < 0) continue
+                    const obj = objects[r]
+                    if(obj == null) continue
+
+                    /** @type {Set<number> | undefined} */
+                    const rb = obj._referencedBy
+                    if(rb == null) obj._referencedBy = new Set([i])
+                    else rb.add(i)
+                }
+            }
+        }
+    }
+
     const e = performance.now()
     console.log('objects done in', e - s)
 
@@ -740,7 +786,7 @@ function serializeObject(obj) {
             const kInfo = kInfos[ki]
             const it = getBase(comp, kInfo[0])
             const desc = referenceDescs.get(kInfo[1])
-            const refs = getReferences(it, desc)
+            const refs = getReferences(it, desc, obj._index)
             for(let j = 0; j < refs.length; j++) {
                 a(refs[j])
             }
@@ -984,6 +1030,7 @@ function calcMarkerFilters(name, filters) {
             [ti.Enemy]: [['size', [3]]],
             [ti.Boss]: e,
             [ti.Npc]: e,
+            [ti.CrystalNpc]: e,
             [ti.Pickup]: e,
             [ti.CrystalKey]: e,
             [ti.BossKey]: e,

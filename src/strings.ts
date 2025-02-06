@@ -56,7 +56,7 @@ export default {
         `Извините, ваш браузер не поддердивает WebGL2`
     ],
     markers: ['Markers', 'Маркеры'],
-    npcs: ['NPCs', 'NPC'],
+    npcs: ['Freed NPCs', 'Freed NPC'],
     regkey: ['Regular keys', 'Обычные ключи'],
     bosskey: ['Boss keys', 'Ключи для боссов'],
     bossdropkey: ['Boss drop keys', 'Ключи с боссов'],

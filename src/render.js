@@ -214,7 +214,10 @@ const filtersCustom = [
     [
         '$Object', $t.markers, true, 'filters',
         [
-            ['Npc', $t.npcs, true, 'filters', []],
+            ['', 'Npcs', true, 'group', [
+                ['Npc', $t.npcs, true, 'filters', []],
+                ['CrystalNpc', 'Npc inside crystals', true, 'filters', []],
+            ]],
             ['NpcTiny', 'Race spirits', true, 'filters', []],
             ['', 'Pickups', true, 'group', [
                 ['CrystalKey', $t.regkey, true, 'filters', []],

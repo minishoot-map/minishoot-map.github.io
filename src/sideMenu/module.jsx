@@ -734,6 +734,13 @@ ac(ti.Npc, (c, o) => {
     </Props>
 })
 
+ac(ti.CrystalNpc, (c, o) => {
+    return <Props>
+        <Prop>{$t.name + ':'}{npcNames[c.id]}</Prop>
+        <Component comp={c._base} obj={o}/>
+    </Props>
+})
+
 ac(ti.Tunnel, (c, o) => {
     return <Props>
         <Prop>{$t.dest + ':'}<Link index={c.destination} obj={o}/></Prop>
