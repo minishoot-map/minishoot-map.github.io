@@ -1053,6 +1053,7 @@ function calcMarkerFilters(name, filters) {
             [ti.UnlockerTorch]: e,
             [ti.NpcTiny]: e,
             [ti.RaceManager]: e,
+            [ti.MovePickupWhenFreed]: e,
         }
         if(filters.transitions) {
             fs[ti.Transition] = e

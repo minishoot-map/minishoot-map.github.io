@@ -273,20 +273,20 @@ const filtersCustom = [
                     ],
                 ], true
             ],
-            ['', 'Unlockers', true, 'filters', [
+            ['', 'Unlocks', true, 'filters', [
                 ['Unlocker', 'Regular unlockers', true, 'filters', []],
                 ['UnlockerTrigger', 'Unlocker triggers', true, 'filters', []],
                 ['UnlockerTorch', 'Unlocker torches', true, 'filters', []],
                 ['RaceManager', 'Timer Races', true, 'filters', [
                     ['RaceCheckpoint', 'Checkpoints', false, 'filters', []]
                 ]],
+                ['MovePickupWhenFreed', 'Npc family check', true, 'filters', []],
             ], true],
             ['Transition', $t.transition, true, 'filters', []],
             ['Tunnel', $t.tunnel, true, 'filters', []],
             ['', 'Misc', false, 'group', [
                 ['Torch', $t.torch, true, 'filters', []],
                 ['Checkpoint', 'Checkpoints', true, 'filters', []],
-                ['MovePickupWhenFreed', 'Npc check left of spawn', true, 'filters', []],
             ], true],
         ],
     ],
