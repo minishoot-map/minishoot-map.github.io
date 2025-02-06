@@ -727,9 +727,22 @@ const npcNames = [
 	"Bard",
 ]
 
+function getNpcs(c, o) {
+    const npcs = o.npcIds.get(c.id) ?? []
+    const other = []
+    for(let i = 0; i < npcs.length; i++) {
+        if(npcs[i] !== o.index) {
+            other.push(<Link key={i} index={npcs[i]} obj={o}/>)
+        }
+    }
+    return <Prop>{'In other places:'}<Props>{other}</Props></Prop>
+
+}
+
 ac(ti.Npc, (c, o) => {
     return <Props>
         <Prop>{$t.name + ':'}{npcNames[c.id]}</Prop>
+        {getNpcs(c, o)}
         <Component comp={c._base} obj={o}/>
     </Props>
 })
@@ -737,6 +750,7 @@ ac(ti.Npc, (c, o) => {
 ac(ti.CrystalNpc, (c, o) => {
     return <Props>
         <Prop>{$t.name + ':'}{npcNames[c.id]}</Prop>
+        {getNpcs(c, o)}
         <Component comp={c._base} obj={o}/>
     </Props>
 })

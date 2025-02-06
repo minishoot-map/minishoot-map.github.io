@@ -842,6 +842,7 @@ function serializeObject(obj) {
         referenceInfos,
         children,
         parentChain: parentChain,
+        npcIds,
         referencedBy,
     }
 }
