@@ -28,7 +28,7 @@ export function setup(_context) {
     const root1 = reactDom.createRoot(document.querySelector('.object-menu'))
     root1.render(<R.StrictMode><ObjectMenu/></R.StrictMode>)
 
-    const root2 = reactDom.createRoot(document.querySelector('.filter-menu'))
+    const root2 = reactDom.createRoot(document.querySelector('.filter-menu-rest'))
     root2.render(<R.StrictMode><FilterMenu/></R.StrictMode>)
 }
 
@@ -144,40 +144,14 @@ function Presets() {
     }
 }
 
-function PresetSelector() {
-    filtersRev()
-    function changed(e) {
-        const v = e.target.value
-        context.filterPresets.selected = v
-        context.filtersUpdated()
-    }
-    return <label className="preset-selector">
-        <span>{$t.preset}:</span>
-        <select name="options" value={context.filterPresets.selected} onChange={changed}>
-            <option value="custom">✨ {$t.preset_custom}</option>
-            <option value="default">⚙ {$t.preset_default}</option>
-            <option value="dungeon">💀 {$t.preset_dungeon}</option>
-            <option value="energy">⚡ {$t.preset_energy}</option>
-            <option value="hp">💙 {$t.preset_hp}</option>
-            <option value="map">🗺️ {$t.preset_map}</option>
-            <option value="modules">🧊 {$t.preset_modules}</option>
-            <option value="raceSpirits">🏁 {$t.preset_raceSpirits}</option>
-            <option value="redCoins">🔴 {$t.preset_redCoins}</option>
-            <option value="scarabs">🪲 {$t.preset_scarabs}</option>
-            <option value="temples">🏛️ {$t.preset_temples}</option>
-        </select>
-    </label>
-}
-
 function FilterMenu() {
     filtersRev()
     const fs = context.flags
-    return <div>
-        <PresetSelector/>
+    return <>
         <Presets/>
         <Filter key='colliders' filter={fs.cur.colliders}/>
         <Filter key='background' filter={fs.cur.background}/>
-    </div>
+    </>
 }
 
 function ObjectMenu() {

@@ -47,7 +47,7 @@ function setMsg(msg) {
         const root1 = document.querySelector('.object-menu')
         root1.innerHTML = msg
 
-        const root2 = document.querySelector('.filter-menu')
+        const root2 = document.querySelector('.filter-menu-rest')
         root2.innerHTML = msg
     }
     catch(err) { console.warn(err) }

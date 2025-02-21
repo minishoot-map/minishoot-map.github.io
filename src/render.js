@@ -661,3 +661,20 @@ function updUrlScene(it) {
         window.history.pushState({}, '', url)
     }
 }
+
+const selector = document.querySelector('.preset-selector > select')
+try {
+    function set(value) {
+        const fp = context.filterPresets
+        if(value in fp.cur && fp.selected !== value) {
+            fp.selected = value
+            context.filtersUpdated()
+        }
+
+    }
+    selector.addEventListener('change', () => set(selector.value))
+    set(selector.value)
+}
+catch(err) {
+    console.error(err)
+}
